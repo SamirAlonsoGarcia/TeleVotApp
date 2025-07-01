@@ -1,0 +1,151 @@
+{% load static %}
+
+<title> NOTICIAS </title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<body>
+  <div class="container-fluid">
+      <div class="row">
+          <div class="col-sm-10">
+          </br>
+          </br>
+          <nav class="navbar navbar-expand-sm fixed-top">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'inicio' %}">INICIO</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'votaciones' %}">VOTACIONES</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'censos' %}">CENSOS</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'certificados' %}">CERTIFICADOS</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="{% url 'noticias' %}">NOTICIAS</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'guia_usuario' %}">GUIA DE USUARIO</a>
+                </li>
+                {% if user.is_staff or user.is_superuser %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'administracion' %}">ADMINISTRACIÓN</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          <div class="col-sm-2">
+            <img src="{% static 'images/logoApp.png' %}" class="rounded" alt="AppLogo" width="300px" height="300px">
+            </br>
+            </br>
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger">CERRAR SESION</button>
+            </form>
+          </div>
+      </div>
+  </div>
+  </br>
+  </br>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-1">
+
+      </div>
+      <div class="col-sm-11">
+        <div class="card">
+          <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+            <h4> VOTACIONES </h4>
+          </div>
+          <div class="card-body">
+              {% for noticia in noticias%}
+                {% if noticia.IdVotacionRelacionada != 0 and noticia.IdCensoRelacionada == 0 and noticia.NoticiaApp == False %}
+                  <h1>{{ noticia.TituloNoticia }}</h1>
+                  <br>
+                  <p>{{ noticia.TextoNoticia }}</p>
+                {% endif %}
+              {% empty %}
+                <p>No hay noticias disponibles.</p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    </br>
+    </br>
+    <div class="row">
+      <div class="col-sm-11">
+        <div class="card">
+          <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+            <h4> CENSOS </h4>
+          </div>
+          <div class="card-body">
+              {% for noticia in noticias%}
+                {% if noticia.IdCensoRelacionada != 0 and noticia.IdVotacionRelacionada == 0 and noticia.NoticiaApp == False %}
+                  <h1>{{ noticia.TituloNoticia }}</h1>
+                  <br>
+                  <p>{{ noticia.TextoNoticia }}</p>
+                {% endif %}
+              {% empty %}
+                <p>No hay noticias disponibles.</p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    </br>
+    </br>
+    <div class="row">
+      <div class="col-sm-1">
+
+      </div>
+      <div class="col-sm-11">
+        <div class="card">
+          <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+            <h4> APLICACION </h4>
+          </div>
+          <div class="card-body">
+              {% for noticia in noticias%}
+                {% if noticia.NoticiaApp == True and noticia.IdVotacionRelacionada == 0 and noticia.IdCensoRelacionada == 0 %}
+                  <h1>{{ noticia.TituloNoticia }}</h1>
+                  <br>
+                  <p>{{ noticia.TextoNoticia }}</p>
+                {% endif %}
+              {% empty %}
+                <p>No hay noticias disponibles.</p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    </br>
+    </br>
+    <div class="row">
+      <div class="col-sm-11">
+        <div class="card">
+          <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+            <h4> VARIAS </h4>
+          </div>
+          <div class="card-body">
+              {% for noticia in noticias%}
+                {% if noticia.IdVotacionRelacionada == 0 and noticia.IdCensoRelacionada == 0 and noticia.NoticiaApp == False %}
+                  <h1>{{ noticia.TituloNoticia }}</h1>
+                  <br>
+                  <p>{{ noticia.TextoNoticia }}</p>
+                {% endif %}
+              {% empty %}
+                <p>No hay noticias disponibles.</p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-1">
+
+      </div>
+    </div>
+  </div>
+</body>

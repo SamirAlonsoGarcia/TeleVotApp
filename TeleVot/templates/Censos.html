@@ -1,0 +1,113 @@
+{% load static %}
+
+<title> CENSO </title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<body>
+  <div class="container-fluid">
+      <div class="row">
+          <div class="col-sm-10">
+          </br>
+          </br>
+          <nav class="navbar navbar-expand-sm fixed-top">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'inicio' %}">INICIO</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'votaciones' %}">VOTACIONES</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="{% url 'censos' %}">CENSOS</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'certificados' %}">CERTIFICADOS</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'noticias' %}">NOTICIAS</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'guia_usuario' %}">GUIA DE USUARIO</a>
+                </li>
+                {% if user.is_staff or user.is_superuser %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'administracion' %}">ADMINISTRACIÓN</a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          <div class="col-sm-2">
+            <img src="{% static 'images/logoApp.png' %}" class="rounded" alt="AppLogo" width="300px" height="300px">
+            </br>
+            </br>
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger">CERRAR SESION</button>
+            </form>
+          </div>
+      </div>
+    </br>
+    <form method="post" enctype="multipart/form-data" action="{% url 'MandarIncidenciaCenso' %}">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+          <div class="card">
+            <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+              <h4> INSCRITOS </h4>
+            </div>
+            <div class="card-body">
+              <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Seleccionar Censo</th>
+                      <th>Nombre Censo</th>
+                      <th>Descripcion</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for censo in censos %}
+                      <tr>
+                        <td><input type="radio" name="censo_id" value="{{ censo.IdCenso }}"></td>
+                        <td>{{ censo.NombreCenso }}</td>
+                        <td>{{ censo.Descripcion }}</td>
+                      </tr>
+                    {% empty %}
+                      <tr><td colspan="4">No hay Censos activos.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+            </div>
+            </br>
+            </br>
+            </br>
+            </br>
+            <div class="card" visible="False">
+              <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+                <h4> ALEGACIONES </h4>
+              </div>
+              <div class="card-body">
+                <label for="titulo">Título:</label>
+                <input type="text" class="form-control" name="titulo" id="titulo" required>
+                </br>
+                <textarea class="form-control" id="Alegacion" name="Alegacion" rows="3" placeholder="Aquí puedes poner el texto de la incidencia..."></textarea>
+                </br>
+                </br>
+                <label for="file">Selecciona un archivo:</label>
+                </br>
+                </br>
+                <input type="file" id="file" name="file" accept="image/*">
+                </br>
+                </br>
+                <input type="submit" value="Enviar" class="btn btn-secondary">
+              </div>
+            </div>
+          </div>
+        <div class="col-sm-1"></div>
+      </div>
+    </form>
+  </div>
+</body> 

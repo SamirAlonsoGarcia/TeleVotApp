@@ -1,0 +1,93 @@
+{% load static %}
+
+<title> CAMBIO DE CONTRASEÑAS </title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6"></div>
+            <div class="col-sm-3">
+                <img src="{% static 'images/logoApp.png' %}" class="rounded" alt="AppLogo" width="300px" height="300px">
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+            <form method="post" enctype="multipart/form-data" action="{% url 'modificar_contraseña' %}">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+                        <h2>RELLENA LOS SIGUIENTES CAMPOS PARA CAMBIAR LA CONTRASEÑA </h2>
+                    </div>
+                    <div class="card-body">
+                        <label for="usuario_id" class="form-label">INTRODUCE EL ID DEL USUARIO</label>
+                        <input type="text" id="usuario_id" name="usuario_id" required class="form-control">
+                        </br>
+                        </br>
+                        <label for="antigua_contraseña" class="form-label">CONTRASEÑA ANTIGUA</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="antigua_contraseña" id="antigua_contraseña" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="antigua_contraseña">👁️</button>
+                        </div>
+                        </br>
+                        </br>
+                        <label for="nueva_contraseña" class="form-label">NUEVA CONTRASEÑA</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="nueva_contraseña" id="nueva_contraseña" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="nueva_contraseña">👁️</button>
+                        </div>
+                        </br>
+                        </br>
+                        <label for="confirmar_contraseña" class="form-label">CONFIRMAR CONTRASEÑA</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="confirmar_contraseña" id="confirmar_contraseña" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirmar_contraseña">👁️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+        </br>
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-3">
+                <button type="submit" class="btn btn-primary">CAMBIAR CONTRASEÑA</button>
+            </div>
+            </form>
+            <div class="col-sm-3">                        
+                <input type="button" href="{% url 'login' %}" value="CANCELAR" name="Cancelar" >
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+    </div>
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+
+<script>
+  // Mostrar/ocultar contraseña
+  document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function () {
+      const targetId = this.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        this.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        this.textContent = '👁️';
+      }
+    });
+  });
+</script>

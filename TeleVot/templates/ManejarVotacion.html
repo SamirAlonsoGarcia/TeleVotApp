@@ -1,0 +1,227 @@
+{% load static %}
+{% load custom_tags %}
+
+<title> PANEL DE ADMINISTRACION </title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+            </div>
+            <div class="col-sm-6">
+                </br>
+                </br>
+                <h1> PANEL DE ADMINISTRACION </h1>
+                </br>
+                <nav class="navbar navbar-expand-sm">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'inicio' %}">INICIO</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/">ADMINISTRACION BD</a>
+                        </li>
+                        <li class="nav-item" >
+                            <a class="nav-link" href="{% url 'administracion' %}">ADMINISTRACION</a> 
+                        </li>
+                        <li class="nav-item">
+                            <form action="{% url 'logout' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger">CERRAR SESION</button>
+                            </form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-sm-3">
+                <img src="{% static 'images/logoApp.png' %}" class="rounded" alt="AppLogo" width="300px" height="300px">
+            </div>
+        </div>
+    </div>
+    </br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+            </div>
+            <div class="col-sm-6">
+                <br>
+                <h1>{{votacion.TituloVotacion}}</h1>
+                </br>
+                </br>
+                <h3>LA VOTACION ESTA ACTIVA: {{votacion.Estado}}</h3>
+                </br>
+                </br>
+                <p>{{votacion.Descripcion}}</p>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+        </br>
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-5">
+                <div class="card">
+                    <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+                        <h4> ASIGNAR CENSOS </h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" action="{% url 'asignar_censo_votacion' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Seleccionar Censo</th>
+                                    <th>Nombre del Censo</th>
+                                    <th>Descripcion</th>
+                                    <th>Total Censados</th>
+                                    <th>Fichero Asociado</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for censo in censos %}
+                                    <tr>
+                                    <td><input type="radio" name="censo_id" value="{{ censo.IdCenso }}"></td>
+                                    <td>{{ censo.NombreCenso }}</td>
+                                    <td>{{ censo.Descripcion }}</td>
+                                    <td>{{ censo.NCensados }}</td>
+                                    <td>{{ censo.FicheroAsociado}}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="4">No hay ningun censo creado.</td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            </br>
+                            <button type="submit">Asignar Censo</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="card">
+                    <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+                        <h4> NOTIFICAR USUARIOS </h4>
+                    </div>
+                    <div class="card-body">
+                        <h2> Inscribir Usuarios a la votacion</h2>
+                        </br>
+                        <form method="post" enctype="multipart/form-data" action="{% url 'asignar_usuarios_votacion' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+                            </br>
+                            <button type="submit">Asignar Usuarios</button>
+                            </br>
+                        </form>
+                        </br>
+                        <form method="post" enctype="multipart/form-data" action="{% url 'notificar_usuarios_votacion'%}">
+                            {% csrf_token %}
+                            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+                            </br>
+                            <button type="submit">Notificar Inscripcion</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+        </br>
+        <div class="row">
+            <div class="col-sm-1">
+            </div>
+            <div class="col-sm-5">
+                <div class="card">
+                    <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+                        <h4>ASIGNAR CANDIDATURA</h4>
+                    </div>
+                    <div class="card-body">
+                        <h2>CREAR NUEVA CANDIDATURA</h2>
+                        </br>
+                        <form method="post" enctype="multipart/form-data" action="{% url 'crear_candidatura' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+                            {{ form1.as_p }}
+                            <button type="submit">Crear Candidatura</button>
+                        </form>
+                        </br>
+                        </br>
+                        <h2> ELIMINAR CANDIDATURA </h2>
+                        <form method="post" enctype="multipart/form-data" action="{% url 'eliminar_candidaturas' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Seleccionar Candidatura</th>
+                                    <th>Nombre de la Candidatura</th>
+                                    <th>Tipo de Candidatura</th>
+                                    <th>Participantes</th>
+                                    <th>Descripcion</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for candidatura in candidaturas %}
+                                    <tr>
+                                    <td><input type="radio" name="candidatura_id" value="{{ candidatura.IdCandidatura }}"></td>
+                                    <td>{{ candidatura.NombreCandidatura }}</td>
+                                    <td>{{ candidatura.TipoCandidatura }}</td>
+                                    <td>
+                                        {% with dni_list=integrantes|get_item:candidatura.IdCandidatura %}
+                                            {% if dni_list %}
+                                                {% for dni in dni_list %}
+                                                    {{ dni }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                No hay integrantes
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>{{ candidatura.Descripcion}}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="4">No hay ningun Candidatura creada.</td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <button type="submit">Eliminar Candidatura</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="card">
+                    <div class="card-header" style="color: #FFFFFF; background-color: #103957">
+                        <h4> SORTEAR MESA </h4>
+                    </div>
+                    <div class="card-body">
+                        {% if mesa_ya_sorteada %}
+                            <p><strong>Estado:</strong> La/s Mesa/s Electoral/es de esta votacion ya estan creadas.</p>
+                        {% else  %}
+                            <p><strong>Estado:</strong> Mesa/s electoral/es no sorteada/s.</p>
+                            <form method="post" enctype="multipart/form-data" action="{% url 'sortear_mesa' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+                                <button type="submit">Sortear Mesa Electoral</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1">
+
+            </div>
+        </div>
+    </div>
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}      
+</body>
