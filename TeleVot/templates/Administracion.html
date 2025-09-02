@@ -73,7 +73,35 @@
                         </div>
                         <div div id="collapse2" class="collapse show" data-bs-parent="#accordion">
                             <div class="card-body">
+                                <h4> DAR DE ALTA UNA VOTACION </h4>
+                                </br>
+                                <form method="post" enctype="multipart/form-data" action="{% url 'nueva_votacion' %}">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                    <div class="col-sm-3">
+                                        {{ form1.tituloVotacion.label_tag }}
+                                        {{ form1.tituloVotacion }}
+                                    </div>
+                                    <div class="col-sm-3">
+                                        {{ form1.numeroParticipantes.label_tag }}
+                                        {{ form1.numeroParticipantes }}
+                                    </div>
+                                    <div class="col-sm-3">
+                                        {{ form1.basesVotacion.label_tag }}
+                                        {{ form1.basesVotacion }}
+                                    </div>
+                                    <div class="col-sm-3">
+                                        {{ form1.descripcion.label_tag }}
+                                        {{ form1.descripcion }}
+                                    </div>
+                                    </div>
+                                    </br>
+                                    </br>
+                                    <button type="submit">Crear Votacion</button>
+                                </form>
+
                                 <h4>LISTADO DE VOTACIONES</h4>
+
                                 </br>
                                 <form method="post" enctype="multipart/form-data" action="{% url 'gestionar_votaciones' %}">
                                     {% csrf_token %}

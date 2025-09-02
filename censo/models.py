@@ -18,7 +18,7 @@ class Votacion(models.Model):
     IdVotacion = models.AutoField(primary_key=True)
     TituloVotacion = models.CharField(max_length=100)
     NParticipantes = models.IntegerField()
-    Resultado = models.CharField(max_length=12, default="Sin Resolver")
+    Resultado = models.CharField(max_length=13, default="Sin Resolver")
     Estado = models.BooleanField(default=False)
     RecuentoAutorizado = models.BooleanField(default=False)
     BasesVotacion = models.FileField()

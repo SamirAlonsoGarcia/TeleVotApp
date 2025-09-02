@@ -24,7 +24,7 @@ import random
 import math
 import openpyxl # leer datos de excel
 from .models import Noticias, Usuario, Censo, MesaElectoral, Votacion, Voto, Candidatura, Incidencia, CensoUsuario, CensoVotacion, CandidatosNombrados, InscritosVotacion, IntegrantesCandidatura, IntegrantesMesa, Certificado
-from .forms import LoginForm, NuevoUsuarioForm, NuevaCandidaturaForm
+from .forms import LoginForm, NuevoUsuarioForm, NuevaCandidaturaForm, NuevaVotacionForm
 
 #getobject_or_404 funcion que maneja la salida de una operacion con o sin parametros y que devuelve una pagina de error si no se puede procesar.
 def es_admin(user):
@@ -35,10 +35,11 @@ def es_admin(user):
 def Administracion(request):
     incidencias = Incidencia.objects.exclude(IncidenciaSolucionada=True)
     form = NuevoUsuarioForm()
+    form1 = NuevaVotacionForm()
     censos = Censo.objects.all()
     votaciones = Votacion.objects.all()
     mesas_electorales = MesaElectoral.objects.all()
-    return render(request, 'Administracion.html', {'incidencias': incidencias, 'form':form, 'form1':form,'censos': censos, 'votaciones': votaciones, 'mesasElectorales':mesas_electorales})
+    return render(request, 'Administracion.html', {'incidencias': incidencias, 'form':form, 'form1':form1,'censos': censos, 'votaciones': votaciones, 'mesasElectorales':mesas_electorales})
 
 @login_required(login_url='tablonAnuncios')
 def Inicio(request):
@@ -759,3 +760,9 @@ def recuentoVotacion(request):
 @login_required
 def Incidencias(request):
     return redirect('votaciones')
+
+@login_required
+def nueva_votacion(request):
+    titulo_votacion= request.POST.get("tituloVotacion")
+    fichero= request.POST.get("")
+    return 0

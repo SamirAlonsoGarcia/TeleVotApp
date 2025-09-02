@@ -34,7 +34,8 @@ urlpatterns=[
     path('certificar_voto/', views.certificar_voto, name='certificar_voto'),
     path('estadisticasVotacion/', views.estadisticasVotacion, name='estadisticasVotacion'),
     path('recuentoVotacion/',views.recuentoVotacion,name='recuentoVotacion'),
-    path('Incidencias/',views.Incidencias, name='incidencias')
+    path('Incidencias/',views.Incidencias, name='incidencias'),
+    path('nuevaVotacion/',views.nueva_votacion,name='nueva_votacion')
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

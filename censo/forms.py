@@ -1,5 +1,5 @@
 from django import forms
-from .models import Candidatura,Usuario
+from .models import Candidatura,Usuario,Votacion
 
 class LoginForm(forms.Form):
     documento_fiscal = forms.CharField(
@@ -77,3 +77,21 @@ class NuevaCandidaturaForm(forms.ModelForm):
         if tipo == 'multiple' and (usuarios.count() < 2 or usuarios.count() > 5):
             raise forms.ValidationError("Una candidatura múltiple debe tener al menos 2 usuarios y como máximo 5.")
         return cleaned_data
+
+class NuevaVotacionForm(forms.Form):
+    tituloVotacion = forms.CharField(
+        label="Titulo de la Votacion",
+        max_length=200,
+        widget=forms.TextInput(attrs={'placeholder':'Introduce el titulo de la votacion'})
+    )
+    numeroParticipantes = forms.IntegerField(
+        label='Numero de participantes',
+        min_value=10
+    )
+    basesVotacion = forms.FileField(
+        label='Elige el fichero con las bases de la votacion'
+    )
+    descripcion = forms.CharField(
+        label='Descripcion',
+        widget=forms.TextInput(attrs={'rows':3, 'placeholder':'Descripcion de la votacion'})
+    )
