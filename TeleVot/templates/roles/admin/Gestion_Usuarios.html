@@ -1,0 +1,64 @@
+{% extends "roles/admin/base_admin.html" %}
+{% load static %}
+{% load custom_tags %}  {# para usar get_item si lo necesitas #}
+
+{% block title %}Gestión de usuarios · Admin{% endblock %}
+
+{% block content %}
+<h4 class="mb-3">Gestión de roles (Admin / Junta Electoral)</h4>
+<p class="text-muted">
+  Desde aquí solo puedes asignar o quitar los roles <strong>Administrador</strong> y <strong>Junta Electoral</strong>.
+  El resto de roles (Elector, Mesa, Director de campaña) se gestionan desde sus apartados correspondientes.
+</p>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Documento Fiscal</th>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th class="text-center">Admin</th>
+      <th class="text-center">Junta</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in usuarios %}
+      {% with roles_usuario=roles_por_usuario|get_item:u.id %}
+      <tr>
+        <td>{{ u.DocumentoFiscal }}</td>
+        <td>{{ u.Nombre }} {{ u.Apellidos }}</td>
+        <td>{{ u.email }}</td>
+        <td class="text-center">
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="usuario_id" value="{{ u.id }}">
+            <div class="form-check d-inline-block">
+              <input class="form-check-input" type="checkbox" name="roles" value="admin"
+                     {% if roles_usuario and 'admin' in roles_usuario %}checked{% endif %}>
+            </div>
+        </td>
+        <td class="text-center">
+            <div class="form-check d-inline-block">
+              <input class="form-check-input" type="checkbox" name="roles" value="junta"
+                     {% if roles_usuario and 'junta' in roles_usuario %}checked{% endif %}>
+            </div>
+        </td>
+        <td>
+            <button type="submit" class="btn btn-sm btn-primary">
+              Guardar
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endwith %}
+    {% empty %}
+      <tr>
+        <td colspan="6" class="text-center text-muted">
+          No hay usuarios registrados todavía.
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

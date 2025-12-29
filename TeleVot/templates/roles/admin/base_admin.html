@@ -1,0 +1,86 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Admin · TeleVotApp{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background-color:#f5f6fa;">
+  <!-- Navbar Admin -->
+  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color:#103957;">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="{% url 'Inicio_admin' %}">
+        TeleVotApp · Admin
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAdmin"
+              aria-controls="navbarAdmin" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarAdmin">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <!-- Inicio -->
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'Inicio_admin' %}">Inicio</a>
+          </li>
+
+          <!-- Django Admin -->
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/">Django Admin</a>
+          </li>
+
+          <!-- Crear usuario -->
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'Admin_crear_usuario' %}">Crear usuario</a>
+          </li>
+
+          <!-- Gestionar usuarios -->
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'Admin_gestion_usuarios' %}">Gestionar usuarios</a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+          <!-- Logo en pastilla blanca -->
+          <div class="p-1 px-2 bg-white rounded-3 shadow-sm me-3 d-none d-sm-block">
+            <img src="{% static 'images/logoApp.png' %}" alt="TeleVotApp" width="40" height="40">
+          </div>
+
+          <!-- Logout -->
+          <form action="{% url 'logout' %}" method="post" class="d-flex">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container py-4">
+    {% if messages %}
+      <div class="mt-2">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+<footer class="text-center text-muted py-3 mt-4" style="font-size: 0.9rem;">
+  <span>TeleVotApp · </span>
+  <a href="{% url 'Guia_usuario_global' %}" target="_blank" rel="noopener noreferrer">
+    Guía de usuario
+  </a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

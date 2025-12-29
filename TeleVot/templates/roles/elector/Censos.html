@@ -1,0 +1,79 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Censos · Elector{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Mis censos</h2>
+
+<div class="row g-4">
+
+  <!-- Censos en los que está inscrito -->
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Censos en los que estás inscrito</h5>
+      </div>
+      <div class="card-body">
+        {% if censos %}
+          <ul class="list-group">
+            {% for censo in censos %}
+              <li class="list-group-item">
+                <h6 class="mb-1">{{ censo.NombreCenso }}</h6>
+                <p class="mb-0 text-muted">{{ censo.Descripcion }}</p>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Actualmente no estás inscrito en ningún censo.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Incidencia sobre censo -->
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Solicitar revisión de censo</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">
+          Si consideras que deberías estar incluido en otro censo o que falta algún dato,
+          puedes abrir una incidencia para que la Junta Electoral revise tu caso.
+        </p>
+
+        <form method="post" action="{% url 'Elector_incidencia_censo' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label" for="titulo">Título de la incidencia</label>
+            <input type="text" id="titulo" name="titulo" class="form-control"
+                   placeholder="Ej: Solicitud de inclusión en otro censo" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="censo_relacionado">Censo relacionado (opcional)</label>
+            <select id="censo_relacionado" name="censo_id" class="form-select">
+              <option value="">(Selecciona un censo si aplica)</option>
+              {% for censo in censos %}
+                <option value="{{ censo.IdCenso }}">{{ censo.NombreCenso }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="texto">Descripción</label>
+            <textarea id="texto" name="texto" class="form-control" rows="4" required
+                      placeholder="Explica por qué consideras que deberías estar en otro censo o qué dato debe revisarse."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-danger w-100">
+            Enviar incidencia sobre censo
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

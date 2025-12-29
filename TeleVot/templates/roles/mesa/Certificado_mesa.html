@@ -1,0 +1,163 @@
+{% extends "roles/mesa/base_mesa.html" %}
+{% load static %}
+
+{% block title %}Certificado · Mesa Electoral{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Certificado de la mesa electoral</h2>
+<p class="text-muted">
+    Desde esta pantalla la mesa puede generar, revocar (de forma excepcional) y gestionar
+    la visibilidad del certificado utilizado para el cifrado y posterior recuento de los votos.
+</p>
+
+<div class="row g-4 mt-2">
+
+  <!-- Estado del certificado -->
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Datos del certificado</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Mesa:</strong> {{ mesa.NombreMesa }}</p>
+        <p class="mb-1"><strong>Votación:</strong> {{ votacion.TituloVotacion }}</p>
+
+        {% if certificado %}
+          <p class="mb-1">
+            <strong>Estado del certificado:</strong>
+            {% if certificado.revocado %}
+              <span class="badge bg-danger">Revocado</span>
+            {% else %}
+              <span class="badge bg-success">Válido</span>
+            {% endif %}
+          </p>
+          <p class="mb-1">
+            <strong>Fecha de creación:</strong> {{ certificado.fecha_creacion }}
+          </p>
+          {% if certificado.revocado %}
+            <p class="mb-1"><strong>Fecha de revocación:</strong> {{ certificado.fecha_revocacion }}</p>
+            <p class="mb-1"><strong>Motivo de revocación:</strong> {{ certificado.motivo_revocacion }}</p>
+          {% endif %}
+
+          <hr>
+
+          <h6>Claves asociadas</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Clave pública</th>
+                  <th>Clave privada</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-break"><code>{{ certificado.clave_publica }}</code></td>
+                  <td class="text-muted"><em>Oculta por seguridad</em></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        {% else %}
+          <p class="text-muted mb-0">
+            Actualmente esta mesa <strong>no dispone de certificado generado</strong>.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones sobre el certificado -->
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Acciones disponibles</h5>
+      </div>
+      <div class="card-body">
+
+        <!-- Generar certificado -->
+        {% if not certificado %}
+          <p class="text-muted small">
+            Solo puedes generar el certificado antes de que se inicie la votación.
+          </p>
+          {% if not votacion_iniciada %}
+            <form method="post" class="mb-3">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="generar">
+              <button type="submit" class="btn btn-primary w-100">
+                Generar certificado de mesa
+              </button>
+            </form>
+          {% else %}
+            <div class="alert alert-warning small">
+              La votación ya se ha iniciado, no es posible generar el certificado.
+            </div>
+          {% endif %}
+        {% endif %}
+
+        <!-- Revocar certificado -->
+        {% if certificado and not certificado.revocado %}
+          <hr>
+          <p class="text-muted small">
+            La revocación solo debería realizarse en casos excepcionales y siempre
+            antes de que comience la votación.
+          </p>
+          {% if not votacion_iniciada %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="revocar">
+
+              <div class="mb-2">
+                <label for="motivo_revocacion" class="form-label">Motivo de la revocación</label>
+                <textarea id="motivo_revocacion" name="motivo_revocacion"
+                          class="form-control" rows="3" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-danger w-100">
+                Revocar certificado
+              </button>
+            </form>
+          {% else %}
+            <div class="alert alert-warning small">
+              La votación ya se ha iniciado, no es posible revocar el certificado.
+            </div>
+          {% endif %}
+        {% endif %}
+
+        <!-- Visibilidad hacia usuarios -->
+        <hr>
+        <p class="text-muted small mb-1">
+          Estado visible para los usuarios:
+          {% if mesa.certificado_visible %}
+            <strong>Certificado disponible</strong>
+          {% else %}
+            <strong>No marcado como disponible</strong>
+          {% endif %}
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="accion" value="toggle_visible">
+          <button type="submit" class="btn btn-outline-secondary w-100 btn-sm mt-1">
+            Cambiar estado de visibilidad
+          </button>
+        </form>
+        {% if certificado and not certificado.revocado %}
+        <hr>
+        <p class="text-muted small mb-2">
+          Acción excepcional: solo para comprobaciones puntuales.
+        </p>
+        <form method="post" class="mb-2">
+          {% csrf_token %}
+          <input type="hidden" name="accion" value="revelar_privada">
+          <button type="submit" class="btn btn-outline-warning w-100 btn-sm">
+            Habilitar visualización excepcional (5 min)
+          </button>
+        </form>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 import django
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
@@ -50,6 +51,9 @@ class Certificado(models.Model):
     propietario_mesa = models.OneToOneField('MesaElectoral', on_delete=models.CASCADE, null=True, blank=True)
     propietario_usuario= models.OneToOneField('Usuario', on_delete=models.CASCADE, null=True, blank=True)
     fecha_creacion = models.DateTimeField(default=timezone.now)
+    revocado = models.BooleanField(default=False)
+    motivo_revocacion = models.CharField(max_length=200, null=True, blank=True)
+    fecha_revocacion = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         if self.propietario_mesa:
@@ -62,6 +66,7 @@ class Usuario(AbstractUser):
     Nombre = models.CharField(max_length=100)
     Apellidos = models.CharField(max_length=200)
     DocumentoFiscal = models.CharField(max_length=12,unique=True)
+    email = models.EmailField(max_length=254, unique=True)
     IdEncriptado = models.CharField(max_length=64)
     primera_vez = models.BooleanField(default=True, null=False)
     USERNAME_FIELD = 'DocumentoFiscal'
@@ -75,6 +80,8 @@ class MesaElectoral(models.Model):
     IdVotacion = models.ForeignKey(Votacion,on_delete=models.CASCADE)
     NombreMesa = models.CharField(default="")
     Sorteada = models.BooleanField(default=False)
+    certificado_visible = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.NombreMesa
     
@@ -133,8 +140,13 @@ class InscritosVotacion(models.Model):
 class CandidatosNombrados(models.Model):
     votacion = models.ForeignKey(Votacion, on_delete=models.CASCADE)
     candidatura = models.ForeignKey(Candidatura, on_delete=models.CASCADE)
+    director= models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='director_campaña')
+
     class Meta:
         unique_together = ('votacion', 'candidatura')
+        constraints = [
+        models.UniqueConstraint(fields=['votacion', 'director'],condition=Q(director__isnull=False),name='unique_director_por_votacion')
+    ]
 
 class IntegrantesCandidatura(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
@@ -148,3 +160,26 @@ class IntegrantesMesa(models.Model):
     class Meta:
         unique_together = ('usuario', 'mesa')
 
+class RolUsuario(models.Model):
+    ROL_USUARIO = [
+        ('admin','Administrador'),
+        ('elector','Elector'),
+        ('mesa','MesaElectoral'),
+        ('director', 'DirectorCampaña'),
+        ('junta', 'JuntaElectoral'),
+    ]
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    rol = models.CharField(max_length=15, choices=ROL_USUARIO)
+    class Meta:
+        unique_together = ('usuario', 'rol')
+
+class ComunicacionDirector(models.Model):
+    #temporalmente se marca como posible null=True, blank=True mientras se hace el metodo de asignacion de la candidatura y votacion desde manejar votacion
+    campaña = models.ForeignKey(CandidatosNombrados, on_delete=models.CASCADE, null=True, blank=True)
+    director = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    mensaje = models.TextField()
+    fecha_envio = models.DateTimeField(default=timezone.now)
+    imagen_adjunto = models.ImageField(upload_to='comunicaciones_director/', null=True, blank=True)
+
+    def __str__(self):
+        return f"Comunicación de {self.director.DocumentoFiscal} - {self.fecha_envio}"

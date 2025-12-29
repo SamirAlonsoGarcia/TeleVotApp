@@ -1,5 +1,5 @@
 from django import forms
-from .models import Candidatura,Usuario,Votacion
+from .models import Candidatura, Incidencia,Usuario,Votacion,Noticias
 
 class LoginForm(forms.Form):
     documento_fiscal = forms.CharField(
@@ -56,6 +56,37 @@ class NuevoUsuarioForm(forms.Form):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
 
+class AdminCrearUsuarioForm(forms.Form):
+    Nombre = forms.CharField(
+        label='Nombre',
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    Apellidos = forms.CharField(
+        label='Apellidos',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    DocumentoFiscal = forms.CharField(
+        label='Documento Fiscal',
+        max_length=12,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    email = forms.EmailField(
+        label='Email',
+        max_length=100,
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+    password = forms.CharField(
+        label='Contraseña inicial',
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control')          
+
 class NuevaCandidaturaForm(forms.ModelForm):
     usuarios = forms.ModelMultipleChoiceField(
         queryset=Usuario.objects.all(),
@@ -95,3 +126,75 @@ class NuevaVotacionForm(forms.Form):
         label='Descripcion',
         widget=forms.TextInput(attrs={'rows':3, 'placeholder':'Descripcion de la votacion'})
     )
+
+class MesaNoticiaForm(forms.ModelForm):
+    class Meta:
+        model = Noticias
+        fields = ['TituloNoticia', 'TextoNoticia']
+        labels = {
+            'TituloNoticia': 'Título',
+            'TextoNoticia': 'Texto',
+        }
+        widgets = {
+            'TituloNoticia': forms.TextInput(attrs={'class': 'form-control'}),
+            'TextoNoticia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        }
+
+class JuntaNoticiaForm(forms.ModelForm):
+    class Meta:
+        model = Noticias
+        fields = [
+            'TituloNoticia',
+            'TextoNoticia',
+            'IdVotacionRelacionada',
+            'IdCensoRelacionada',
+            'NoticiaApp',
+        ]
+        labels = {
+            'TituloNoticia': 'Título',
+            'TextoNoticia': 'Texto',
+            'IdVotacionRelacionada': 'Votación relacionada',
+            'IdCensoRelacionada': 'Censo relacionado',
+            'NoticiaApp': 'Noticia de aplicación (global)',
+        }
+        widgets = {
+            'TituloNoticia': forms.TextInput(attrs={'class': 'form-control'}),
+            'TextoNoticia': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'IdVotacionRelacionada': forms.NumberInput(attrs={'class': 'form-control'}),
+            'IdCensoRelacionada': forms.NumberInput(attrs={'class': 'form-control'}),
+            'NoticiaApp': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class NuevaIncidenciaForm(forms.ModelForm):
+    class Meta:
+        model = Incidencia
+        fields = ['IncidenciaSolucionada', 'RespuestaAdministrador']
+        labels = {
+            'IncidenciaSolucionada': 'Incidencia resuelta',
+            'RespuestaAdministrador': 'Respuesta / resolución',
+        }
+        widgets = {
+            'IncidenciaSolucionada': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'RespuestaAdministrador': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Escribe la respuesta o resolución que verá el usuario…',
+            }),
+        }
+
+class JuntaIncidenciaForm(forms.ModelForm):
+    class Meta:
+        model = Incidencia
+        fields = ['IncidenciaSolucionada', 'RespuestaAdministrador']
+        labels = {
+            'IncidenciaSolucionada': 'Incidencia resuelta',
+            'RespuestaAdministrador': 'Respuesta / resolución',
+        }
+        widgets = {
+            'IncidenciaSolucionada': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'RespuestaAdministrador': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Escribe la respuesta o resolución que verá el usuario…',
+            }),
+        }

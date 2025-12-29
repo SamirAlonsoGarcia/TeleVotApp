@@ -1,0 +1,110 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Inicio · Elector{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  <!-- Columna principal -->
+  <div class="col-lg-8">
+
+    <!-- Certificados -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Certificados</h5>
+      </div>
+      <div class="card-body">
+        {% for certi in certificado %}
+          <p class="mb-1">Certificado asignado: {{ certi }}</p>
+        {% empty %}
+          <p class="text-muted mb-0">No tienes certificado asignado.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Censos -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Censos</h5>
+      </div>
+      <div class="card-body">
+        {% for censo in censos %}
+          <h6 class="mb-1">{{ censo.NombreCenso }}</h6>
+          <p class="mb-3 text-muted">{{ censo.Descripcion }}</p>
+        {% empty %}
+          <p class="text-muted mb-0">No estás inscrito en ningún censo.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Mesas electorales -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Mesas electorales</h5>
+      </div>
+      <div class="card-body">
+        {% for mesa in mesas %}
+          <p class="mb-1">Has sido nombrado para la mesa electoral:</p>
+          <h6>{{ mesa.NombreMesa }}</h6>
+        {% empty %}
+          <p class="text-muted mb-0">No has sido seleccionado para ninguna mesa.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Incidencias pendientes -->
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Incidencias pendientes</h5>
+      </div>
+      <div class="card-body">
+        {% for incidencia_NoSol in incidenciasNoSolucionadas %}
+          <h6>{{ incidencia_NoSol.TituloIncidencia }}</h6>
+          <p class="mb-1">{{ incidencia_NoSol.TextoIncidencia }}</p>
+          {% if incidencia_NoSol.RespuestaAdministrador %}
+            <p class="text-muted"><strong>Respuesta:</strong> {{ incidencia_NoSol.RespuestaAdministrador }}</p>
+          {% endif %}
+          <hr>
+        {% empty %}
+          <p class="text-muted mb-0">No tienes ninguna incidencia pendiente.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Columna lateral: perfil -->
+  <div class="col-lg-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <img class="rounded-circle mb-3" src="{% static 'images/avatar.png' %}" alt="avatar" height="100" width="100">
+        <h5 class="mb-2">
+          Bienvenido, {{ usuario.nombre }} {{ usuario.apellidos }}
+        </h5>
+        <p class="mb-1">Documento Fiscal: {{ usuario.documento_fiscal }}</p>
+        <p class="mb-0">Correo electrónico: {{ usuario.coreo_electronico }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Votaciones -->
+<div class="row g-4 mt-4">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Votaciones en las que estás inscrito</h5>
+      </div>
+      <div class="card-body">
+        {% for votacion in votaciones %}
+          <h6 class="mb-1">{{ votacion.TituloVotacion }}</h6>
+          <p class="mb-3 text-muted">{{ votacion.Descripcion }}</p>
+        {% empty %}
+          <p class="text-muted mb-0">No hay ninguna votación activa para ti.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,191 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Votaciones · Elector{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Votaciones</h2>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-header text-white" style="background-color:#103957;">
+    <h5 class="mb-0">Votaciones activas</h5>
+  </div>
+  <div class="card-body">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Seleccionar</th>
+          <th>Título</th>
+          <th>Participantes</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v1 in votaciones_activas %}
+          <tr>
+            <td><input type="radio" name="votacion_id" value="{{ v1.IdVotacion }}"></td>
+            <td>{{ v1.TituloVotacion }}</td>
+            <td>{{ v1.NParticipantes }}</td>
+            <td>{{ v1.Descripcion }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="text-muted text-center">No hay votaciones activas.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="row mt-3">
+      <div class="col-md-4">
+        <form id="form_estadisticas" method="post" action="{% url 'Elector_estadisticas' %}"
+              onsubmit="return actualizarVotacionId('form_estadisticas')">
+          {% csrf_token %}
+          <input type="hidden" name="votacion_id" value="">
+          <button type="submit" class="btn btn-primary w-100">Estadísticas</button>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <form id="form_incidencia" method="post" action="{% url 'Elector_incidencia_votacion' %}"
+              onsubmit="return actualizarVotacionId('form_incidencia')">
+          {% csrf_token %}
+          <input type="hidden" name="votacion_id" value="">
+          <button type="button" class="btn btn-danger w-100" onclick="abrirIncidenciaDesdeSeleccion()">Abrir incidencia</button>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <form id="form_entrar" method="post" action="{% url 'Elector_emitir_voto' %}"
+              onsubmit="return actualizarVotacionId('form_entrar')">
+          {% csrf_token %}
+          <input type="hidden" name="votacion_id" value="">
+          <button type="submit" class="btn btn-warning w-100">Entrar a la votación</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header text-white" style="background-color:#103957;">
+    <h5 class="mb-0">Votaciones finalizadas</h5>
+  </div>
+  <div class="card-body">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Seleccionar</th>
+          <th>Título</th>
+          <th>Participantes</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v2 in votaciones_finalizadas %}
+          <tr>
+            <td><input type="radio" name="votacion_id_finalizada" value="{{ v2.IdVotacion }}"></td>
+            <td>{{ v2.TituloVotacion }}</td>
+            <td>{{ v2.NParticipantes }}</td>
+            <td>{{ v2.Descripcion }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="text-muted text-center">No hay votaciones finalizadas.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="row mt-3">
+      <div class="col-md-4">
+        <form id="form_estadisticas_final" method="post" action="{% url 'Elector_estadisticas' %}">
+          {% csrf_token %}
+          <input type="hidden" name="votacion_id" value="">
+          <button type="submit" class="btn btn-primary w-100">Estadísticas</button>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <form id="form_incidencia_final" method="post" action="{% url 'Elector_incidencia_votacion' %}">
+          {% csrf_token %}
+          <input type="hidden" name="votacion_id" value="">
+          <button type="button" class="btn btn-danger w-100" onclick="abrirIncidenciaDesdeSeleccion()">Abrir incidencia</button>
+        </form>
+      </div>
+      <div class="col-md-4">
+      </div>
+    </div>
+  </div>
+</div>
+</br>
+<div class="collapse mt-3" id="bloqueIncidencia">
+  <div class="card border-danger">
+    <div class="card-header bg-danger text-white">
+      <strong>Abrir incidencia sobre la votación seleccionada</strong>
+    </div>
+    <div class="card-body">
+      <form method="post" action="{% url 'Elector_incidencia_votacion' %}" id="form_incidencia_crear">
+        {% csrf_token %}
+        <input type="hidden" name="votacion_id" id="inc_votacion_id" value="">
+
+        <div class="mb-3">
+          <label class="form-label" for="inc_titulo">Título</label>
+          <input type="text" id="inc_titulo" name="titulo" class="form-control" required
+                 placeholder="Ej: Problema con mi inscripción / dudas sobre la votación">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="inc_texto">Descripción</label>
+          <textarea id="inc_texto" name="texto" class="form-control" rows="4" required
+                    placeholder="Describe el problema..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100">
+          Enviar incidencia
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-danger mt-3">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function actualizarVotacionId(formId) {
+  const seleccion = document.querySelector('input[name="votacion_id"]:checked');
+  if (!seleccion) {
+    alert("Selecciona una votación primero.");
+    return false;
+  }
+  const form = document.getElementById(formId);
+  form.querySelector('input[name="votacion_id"]').value = seleccion.value;
+  return true;
+}
+function getSeleccionActiva() {
+  return document.querySelector('input[name="votacion_id"]:checked');
+}
+function abrirIncidenciaDesdeSeleccion() {
+  const sel = getSeleccionActiva();
+  if (!sel) {
+    alert("Selecciona una votación primero.");
+    return;
+  }
+  document.getElementById('inc_votacion_id').value = sel.value;
+
+  // Abrir el collapse (Bootstrap 5)
+  const el = document.getElementById('bloqueIncidencia');
+  const c = bootstrap.Collapse.getOrCreateInstance(el);
+  c.show();
+
+  // foco al título
+  const t = document.getElementById('inc_titulo');
+  if (t) t.focus();
+}
+
+// Para las finalizadas, podrías hacer algo similar si quieres reutilizar la mecánica
+</script>
+{% endblock %}

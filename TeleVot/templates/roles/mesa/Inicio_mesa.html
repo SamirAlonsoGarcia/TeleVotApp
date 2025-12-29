@@ -1,0 +1,71 @@
+{% extends "roles/mesa/base_mesa.html" %}
+{% block title %}Inicio · Mesa Electoral{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Panel de Mesa Electoral</h2>
+<p class="text-muted">
+  Desde esta pantalla puedes acceder al certificado de mesa, realizar el recuento,
+  publicar noticias y gestionar incidencias relacionadas con la votación.
+</p>
+
+<div class="row g-4 mt-2">
+  <!-- Info mesa/votación -->
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Información de la mesa</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Mesa:</strong> {{ mesa.NombreMesa }}</p>
+        <p class="mb-1"><strong>Votación:</strong> {{ votacion.TituloVotacion }}</p>
+        <p class="mb-1">
+          <strong>Certificado:</strong>
+          {% if certificado_mesa %}
+            Generado
+          {% else %}
+            No generado
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen de votos e incidencias -->
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Resumen de votación</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Total de votos registrados:</strong> {{ total_votos }}</p>
+        <p class="mb-1"><strong>Incidencias totales:</strong> {{ incidencias_votacion }}</p>
+        <p class="mb-1"><strong>Incidencias pendientes:</strong> {{ incidencias_pendientes }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row g-3 mt-4">
+  <div class="col-md-3">
+    <a href="{% url 'Mesa_certificado' %}" class="btn btn-outline-primary w-100">
+      Gestionar certificado
+    </a>
+  </div>
+  <div class="col-md-3">
+    <a href="{% url 'Mesa_recuento' %}" class="btn btn-outline-primary w-100">
+      Recuento de votos
+    </a>
+  </div>
+  <div class="col-md-3">
+    <a href="{% url 'Mesa_noticias' %}" class="btn btn-outline-primary w-100">
+      Noticias
+    </a>
+  </div>
+  <div class="col-md-3">
+    <a href="{% url 'Mesa_incidencias' %}" class="btn btn-outline-primary w-100">
+      Incidencias
+    </a>
+  </div>
+</div>
+{% endblock %}

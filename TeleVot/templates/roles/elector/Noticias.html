@@ -1,0 +1,48 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Noticias · Elector{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4 text-center">Noticias relevantes</h2>
+
+  {% if noticias %}
+    {% for noticia in noticias %}
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white" style="background-color:#103957;">
+          <h5 class="mb-0">
+            {{ noticia.TituloNoticia }}
+            {% if noticia.NoticiaApp %}
+              <span class="badge bg-warning text-dark ms-2">General</span>
+            {% endif %}
+          </h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-3">{{ noticia.TextoNoticia }}</p>
+
+          {% if noticia.IdVotacionRelacionada %}
+            <p class="mb-1">
+              <span class="badge bg-primary">
+                Votación relacionada: {{ noticia.IdVotacionRelacionada }}
+              </span>
+            </p>
+          {% endif %}
+
+          {% if noticia.IdCensoRelacionada %}
+            <p class="mb-0">
+              <span class="badge bg-secondary">
+                Censo relacionado: {{ noticia.IdCensoRelacionada }}
+              </span>
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-info text-center">
+      No hay noticias disponibles por el momento.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

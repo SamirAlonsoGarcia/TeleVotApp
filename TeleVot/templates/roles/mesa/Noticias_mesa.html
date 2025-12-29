@@ -1,0 +1,113 @@
+{% extends "roles/mesa/base_mesa.html" %}
+{% load static %}
+
+{% block title %}Noticias · Mesa Electoral{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Noticias de la votación</h2>
+<p class="text-muted">
+    Desde esta pantalla la mesa electoral puede publicar noticias relacionadas con el
+    cierre de la votación, el inicio del recuento y la publicación de resultados
+    de la votación <strong>{{ votacion.TituloVotacion }}</strong>.
+</p>
+
+<div class="row g-4 mt-2">
+
+  <!-- Columna izquierda: crear / editar noticia -->
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        {% if noticia_actual %}
+          <h5 class="mb-0">Editar noticia</h5>
+        {% else %}
+          <h5 class="mb-0">Publicar nueva noticia</h5>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label">{{ form.TituloNoticia.label }}</label>
+            {{ form.TituloNoticia }}
+            {{ form.TituloNoticia.errors }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ form.TextoNoticia.label }}</label>
+            {{ form.TextoNoticia }}
+            {{ form.TextoNoticia.errors }}
+          </div>
+
+          <input type="hidden" name="noticia_id"
+                 value="{% if noticia_actual %}{{ noticia_actual.IdNoticia }}{% endif %}">
+
+          {% if noticia_actual %}
+            <button type="submit" name="accion" value="guardar"
+                    class="btn btn-primary w-100" style="background-color:#103957;">
+              Guardar cambios
+            </button>
+            <a href="{% url 'Mesa_noticias' %}"
+               class="btn btn-outline-secondary btn-sm mt-2 w-100">
+              Nueva noticia
+            </a>
+          {% else %}
+            <button type="submit" name="accion" value="crear"
+                    class="btn btn-primary w-100" style="background-color:#103957;">
+              Publicar noticia
+            </button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Columna derecha: listado de noticias publicadas -->
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Noticias publicadas</h5>
+      </div>
+      <div class="card-body" style="max-height: 400px; overflow-y:auto;">
+        {% if noticias %}
+          <table class="table table-hover table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Texto</th>
+                <th style="width: 140px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for n in noticias %}
+                <tr>
+                  <td>{{ n.TituloNoticia }}</td>
+                  <td class="small">{{ n.TextoNoticia }}</td>
+                  <td>
+                    <a href="{% url 'Mesa_noticias' %}?noticia_id={{ n.IdNoticia }}"
+                       class="btn btn-sm btn-outline-primary mb-1 w-100">
+                      Editar
+                    </a>
+                    <form method="post" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="noticia_id" value="{{ n.IdNoticia }}">
+                      <button type="submit" name="accion" value="eliminar"
+                              class="btn btn-sm btn-outline-danger w-100"
+                              onclick="return confirm('¿Seguro que deseas eliminar esta noticia?');">
+                        Eliminar
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-muted mb-0">Todavía no se ha publicado ninguna noticia para esta votación.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "roles/admin/base_admin.html" %}
+{% block title %}Inicio · Admin{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Gestión de datos</h5>
+        <p class="text-muted">Accede a la interfaz de Django Admin para auditar tablas, revisar datos y gestionar permisos.</p>
+        <a href="/admin/" class="btn btn-primary">Ir a Django Admin</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Crear usuarios de Junta / Admin</h5>
+        <p class="text-muted">Da de alta miembros de la Junta Electoral o otros administradores.</p>
+        <a href="{% url 'Admin_crear_usuario' %}" class="btn btn-secondary">Crear usuario</a>
+      </div>
+    </div>
+  </div>
+    <div class="col-12 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Manejar usuarios de Junta / Admin</h5>
+        <p class="text-muted">Cambia los roles de la Junta Electoral o otros administradores.</p>
+        <a href="{% url 'Admin_gestion_usuarios' %}" class="btn btn-secondary">Gestionar usuarios</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

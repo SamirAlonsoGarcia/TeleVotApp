@@ -1,0 +1,134 @@
+{% extends "roles/mesa/base_mesa.html" %}
+{% load static %}
+
+{% block title %}Recuento · Mesa Electoral{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-3">Recuento de la Mesa Electoral</h2>
+<p class="text-muted">
+  Desde esta pantalla la mesa electoral puede iniciar el recuento (solo cuando la votación esté cerrada)
+  y visualizar los resultados obtenidos.
+</p>
+
+<div class="row g-4 mt-2">
+
+  <!-- BLOQUE: ESTADO + ACCIONES -->
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Estado del recuento</h5>
+      </div>
+      <div class="card-body">
+
+        <p class="mb-1"><strong>Mesa:</strong> {{ mesa.NombreMesa }}</p>
+        <p class="mb-2"><strong>Votación:</strong> {{ votacion.TituloVotacion }}</p>
+
+        {% if not certificado %}
+          <div class="alert alert-warning small mb-3">
+            No hay un certificado válido asociado a esta mesa. Genera el certificado desde la pestaña
+            <a href="{% url 'Mesa_certificado' %}">Certificado</a>.
+          </div>
+        {% else %}
+          <div class="mb-3">
+            <p class="text-muted small mb-1">
+              El recuento requiere el uso excepcional de la clave privada (habilitación temporal).
+            </p>
+
+            {% if unlock_ok %}
+              <div class="alert alert-success small mb-2">
+                Clave privada habilitada temporalmente ✅ (ventana activa).
+              </div>
+            {% else %}
+              <div class="alert alert-warning small mb-2">
+                Clave privada NO habilitada. Para iniciar el recuento debes habilitarla desde
+                <a href="{% url 'Mesa_certificado' %}">Certificado</a> (duración 5 min).
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="table-responsive mb-3">
+            <table class="table table-sm table-bordered align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Clave pública</th>
+                  <th>Clave privada</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-break"><code>{{ certificado.clave_publica }}</code></td>
+                  <td class="text-muted"><em>Oculta por seguridad</em></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{% url 'Mesa_certificado' %}" class="btn btn-outline-secondary">
+            Ir a Certificado
+          </a>
+
+          <form method="post" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="recuento">
+            <button type="submit"
+                    class="btn btn-primary"
+                    {% if not certificado or not unlock_ok or not votacion_cerrada %}disabled{% endif %}>
+              Realizar conteo
+            </button>
+          </form>
+        </div>
+
+        {% if not votacion_cerrada %}
+          <div class="alert alert-info small mt-3 mb-0">
+            La votación aún no está cerrada. El recuento se habilitará cuando finalice.
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Resultados del recuento</h5>
+      </div>
+      <div class="card-body">
+        <h5 class="mb-3">Recuento – {{ votacion.TituloVotacion }}</h5>
+
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Opción (hash)</th>
+                <th>Votos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in resultados %}
+                <tr>
+                  <td>{{ r.hashVoto }}</td>
+                  <td>{{ r.cantidad }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center text-muted">
+                    Aún no se ha realizado el recuento o no hay votos contabilizados.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

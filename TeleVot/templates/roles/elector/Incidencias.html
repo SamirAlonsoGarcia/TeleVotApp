@@ -1,0 +1,74 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Incidencias · Elector{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Mis incidencias</h2>
+<p class="text-muted">
+  Aquí puedes consultar las incidencias que has enviado sobre censos o votaciones,
+  y ver si ya han sido respondidas por la Junta Electoral o la Mesa.
+</p>
+
+<div class="card shadow-sm mt-3">
+  <div class="card-header text-white" style="background-color:#103957;">
+    <h5 class="mb-0">Listado de incidencias</h5>
+  </div>
+  <div class="card-body">
+    {% if incidencias %}
+      <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Censo</th>
+              <th>Votación</th>
+              <th>Resuelta</th>
+              <th>Respuesta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for inc in incidencias %}
+              <tr>
+                <td>{{ inc.IdIncidencia }}</td>
+                <td>{{ inc.TituloIncidencia }}</td>
+                <td>
+                  {% if inc.IdCenso %}
+                    {{ inc.IdCenso.NombreCenso }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if inc.IdVotacion %}
+                    {{ inc.IdVotacion.TituloVotacion }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if inc.IncidenciaSolucionada %}
+                    <span class="badge bg-success">Sí</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">No</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if inc.RespuestaAdministrador %}
+                    {{ inc.RespuestaAdministrador }}
+                  {% else %}
+                    <span class="text-muted">Pendiente</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">Todavía no has registrado ninguna incidencia.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

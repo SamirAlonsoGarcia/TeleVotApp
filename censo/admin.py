@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Censo, Candidatura, Votacion, MesaElectoral, Noticias, Usuario, Incidencia, CensoUsuario, CensoVotacion, InscritosVotacion, IntegrantesCandidatura, CandidatosNombrados, IntegrantesMesa, Certificado, Voto
+from .models import Censo, Candidatura, Votacion, MesaElectoral, Noticias, Usuario, Incidencia, CensoUsuario, CensoVotacion, InscritosVotacion, IntegrantesCandidatura, CandidatosNombrados, IntegrantesMesa, Certificado, Voto, RolUsuario
 # Register your models here.
 
 admin.site.register(Censo)
@@ -17,3 +17,4 @@ admin.site.register(CandidatosNombrados)
 admin.site.register(IntegrantesMesa)
 admin.site.register(Certificado)
 admin.site.register(Voto)
+admin.site.register(RolUsuario)

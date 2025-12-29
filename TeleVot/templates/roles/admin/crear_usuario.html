@@ -1,0 +1,46 @@
+{% extends "roles/admin/base_admin.html" %}
+{% block title %}Crear usuario · Admin{% endblock %}
+{% block content %}
+<h4 class="mb-3">Crear usuario</h4>
+
+<form method="post" class="row g-3">
+  {% csrf_token %}
+  <div class="col-md-6">
+    <label class="form-label">{{ form.Nombre.label }}</label>
+    {{ form.Nombre }}
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">{{ form.Apellidos.label }}</label>
+    {{ form.Apellidos }}
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">{{ form.DocumentoFiscal.label }}</label>
+    {{ form.DocumentoFiscal }}
+  </div>
+  <div class="col-md-5">
+    <label class="form-label">{{ form.email.label }}</label>
+    {{ form.email }}
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">{{ form.password.label }}</label>
+    {{ form.password }}
+  </div>
+
+  <div class="col-12">
+    <label class="form-label d-block">Asignar como</label>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="rol_destino" id="rol_junta" value="junta" required>
+      <label class="form-check-label" for="rol_junta">Miembro de Junta</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="rol_destino" id="rol_admin" value="admin" required>
+      <label class="form-check-label" for="rol_admin">Administrador</label>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Crear usuario</button>
+    <a href="{% url 'Inicio_admin' %}" class="btn btn-outline-secondary">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

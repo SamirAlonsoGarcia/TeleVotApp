@@ -1,0 +1,40 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Estadísticas · {{ votacion.TituloVotacion }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Estadísticas de la votación</h5>
+      </div>
+      <div class="card-body">
+        <h4 class="mb-3">{{ votacion.TituloVotacion }}</h4>
+
+        <ul class="list-group">
+          <li class="list-group-item">
+            Participación esperada: <strong>{{ total_esperado }}</strong>
+          </li>
+          <li class="list-group-item">
+            Votos emitidos: <strong>{{ total_emitidos }}</strong>
+          </li>
+          <li class="list-group-item">
+            Porcentaje de participación:
+            <strong>{{ participacion|floatformat:2 }}%</strong>
+          </li>
+          <li class="list-group-item">
+            Estado:
+            {% if ya_votado %}
+              <span class="text-success">Ya has votado ✅</span>
+            {% else %}
+              <span class="text-danger">No has votado ❌</span>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

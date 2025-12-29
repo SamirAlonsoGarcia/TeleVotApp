@@ -1,0 +1,70 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Certificados · Elector{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Gestión de certificados</h2>
+
+<div class="row g-4">
+
+  <!-- Certificado personal -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Certificado personal</h5>
+      </div>
+      <div class="card-body">
+        {% for cert in certificado %}
+          <p class="mb-2">Hay un certificado ya definido en la aplicación.</p>
+        {% empty %}
+          <p class="text-muted mb-2">
+            No hay ningún certificado propio de la aplicación asociado a este usuario.
+          </p>
+        {% endfor %}
+
+        <form method="post" enctype="multipart/form-data" action="{% url 'crear_certificado_personal' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-secondary">
+            Generar certificado propio de la aplicación
+          </button>
+        </form>
+
+        <button type="button" class="btn btn-primary mt-3">
+          Comprobar validez certificado instalado
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certificados de mesas -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Certificados de mesas electorales</h5>
+      </div>
+      <div class="card-body">
+        {% for certMesa in certificados_mesas %}
+          <p class="mb-2">
+            La mesa <strong>{{ certMesa.propietario_mesa.NombreMesa }}</strong>
+            tiene el certificado asignado.
+          </p>
+        {% empty %}
+          <p class="text-muted mb-0">
+            Ninguna de las mesas tiene asociado el certificado en estos momentos.
+          </p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

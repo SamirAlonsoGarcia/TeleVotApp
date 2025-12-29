@@ -1,0 +1,168 @@
+{% extends "roles/junta/base_junta.html" %}
+
+{% block title %}Inicio · Junta Electoral{% endblock %}
+
+{% block content %}
+<h2 class="mt-3">Inicio de la Junta Electoral</h2>
+<p>
+  Desde esta pantalla la Junta puede gestionar censos, configurar votaciones,
+  revisar candidaturas y atender incidencias.
+</p>
+<br>
+
+<div class="container-fluid">
+  <div class="row g-3">
+
+    <!-- Resumen numérico -->
+    <div class="col-12 col-lg-8">
+      <div class="row g-3">
+        <div class="col-6 col-xl-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h6 class="card-title text-muted mb-1">Censos</h6>
+              <h3 class="mb-0">{{ total_censos }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h6 class="card-title text-muted mb-1">Votaciones</h6>
+              <h3 class="mb-0">{{ total_votaciones }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h6 class="card-title text-muted mb-1">Votaciones activas</h6>
+              <h3 class="mb-0">{{ votaciones_activas }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h6 class="card-title text-muted mb-1">Incidencias pendientes</h6>
+              <h3 class="mb-0">{{ incidencias_pendientes }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloque extra opcional: mensaje contextual -->
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title">Resumen operativo</h5>
+          <p class="mb-0">
+            Revisa primero los <strong>censos</strong> y las <strong>votaciones activas</strong>.
+            A continuación, confirma que no quedan <strong>incidencias pendientes</strong>
+            antes de proceder a sortear mesas o cerrar votaciones.
+          </p>
+        </div>
+      </div>
+    </br>
+      <!-- Listado de votaciones para seleccionar -->
+     <div class="card mt-3">
+        <div class="card-header text-white" style="background-color:#103957;">
+            <h5 class="mb-0">Listado de votaciones</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">
+            Selecciona una votación activa para gestionarla (asignar censo, candidaturas, sorteo de mesa, etc.).
+            </p>
+
+            <form method="post" action="{% url 'Junta_votaciones_gestionar' %}">
+            {% csrf_token %}
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                    <tr>
+                        <th>Seleccionar</th>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Participantes</th>
+                        <th>Estado</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for v in votaciones_activas_lista %}
+                        <tr>
+                        <td>
+                            <input type="radio" name="votacion_id" value="{{ v.IdVotacion }}" required>
+                        </td>
+                        <td>{{ v.IdVotacion }}</td>
+                        <td>{{ v.TituloVotacion }}</td>
+                        <td>{{ v.NParticipantes }}</td>
+                        <td>
+                            {% if v.Estado %}
+                            Activa
+                            {% else %}
+                            Inactiva
+                            {% endif %}
+                        </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            No hay votaciones activas actualmente.
+                        </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            <button type="submit" class="btn btn-primary">
+                Gestionar votación seleccionada
+            </button>
+            </form>
+        </div>
+     </div>
+
+    </div>
+    <!-- Accesos rápidos -->
+    <div class="col-12 col-lg-4">
+      <div class="card mb-3">
+        <div class="card-header text-white" style="background-color:#103957;">
+          <h5 class="mb-0">Accesos rápidos</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="{% url 'Junta_censos' %}" class="btn btn-outline-primary">
+              Gestionar censos
+            </a>
+            <a href="{% url 'Junta_votaciones_gestionar' %}?votacion_id=" class="btn btn-outline-primary">
+              Gestionar votaciones
+            </a>
+            <a href="{% url 'Junta_incidencias' %}" class="btn btn-outline-secondary">
+              Ver incidencias
+            </a>
+            <a href="{% url 'Junta_noticias' %}" class="btn btn-outline-secondary">
+              Ver noticias
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloque informativo opcional -->
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Siguiente paso habitual</h6>
+          <p class="mb-1">
+            1. Crear o actualizar el <strong>censo</strong> de la votación.
+          </p>
+          <p class="mb-1">
+            2. Configurar la <strong>votación</strong> y sus <strong>candidaturas</strong>.
+          </p>
+          <p class="mb-0">
+            3. Atender <strong>incidencias</strong> antes de iniciar el proceso de votación.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

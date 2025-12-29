@@ -1,0 +1,125 @@
+{% extends "roles/mesa/base_mesa.html" %}
+{% load static %}
+
+{% block title %}Incidencias · Mesa Electoral{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Incidencias de la votación</h2>
+<p class="text-muted">
+    Desde esta pantalla la mesa electoral puede consultar y marcar como resueltas las incidencias
+    relacionadas con la votación <strong>{{ votacion.TituloVotacion }}</strong>.
+</p>
+
+<div class="row g-4 mt-2">
+<!-- Panel de gestión de una incidencia -->
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Detalle / Gestión de incidencia</h5>
+      </div>
+      <div class="card-body">
+        {% if incidencia_actual %}
+          <h5 class="mb-2">{{ incidencia_actual.TituloIncidencia }}</h5>
+          <p class="mb-1">
+            <strong>Usuario:</strong> {{ incidencia_actual.IdUsuario.DocumentoFiscal }}
+          </p>
+
+          <div class="mb-3">
+            <strong>Texto de la incidencia:</strong>
+            <p class="border rounded p-2 mt-1" style="white-space: pre-line;">
+              {{ incidencia_actual.TextoIncidencia }}
+            </p>
+          </div>
+
+          {% if incidencia_actual.FicheroIncidencia %}
+            <div class="mb-3">
+              <strong>Fichero adjunto:</strong><br>
+              <a href="{{ incidencia_actual.FicheroIncidencia.url }}" target="_blank">
+                Descargar adjunto
+              </a>
+            </div>
+          {% endif %}
+
+          <hr>
+
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="incidencia_id" value="{{ incidencia_actual.IdIncidencia }}">
+
+            <div class="form-check mb-3">
+              {{ form.IncidenciaSolucionada }}
+              <label class="form-check-label ms-1">
+                {{ form.IncidenciaSolucionada.label }}
+              </label>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{{ form.RespuestaAdministrador.label }}</label>
+              {{ form.RespuestaAdministrador }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" style="background-color:#103957;">
+              Guardar cambios
+            </button>
+          </form>
+
+        {% else %}
+          <p class="text-muted mb-0">
+            Selecciona una incidencia en el listado de la izquierda para visualizarla y gestionarla.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de incidencias -->
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Listado de incidencias</h5>
+      </div>
+      <div class="card-body" style="max-height:400px; overflow-y:auto;">
+        <table class="table table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Usuario</th>
+              <th>Resuelta</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for inc in incidencias %}
+              <tr>
+                <td>{{ inc.IdIncidencia }}</td>
+                <td>{{ inc.TituloIncidencia }}</td>
+                <td>{{ inc.IdUsuario.DocumentoFiscal }}</td>
+                <td>
+                  {% if inc.IncidenciaSolucionada %}
+                    <span class="badge bg-success">Sí</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">No</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'Mesa_incidencias' %}?incidencia_id={{ inc.IdIncidencia }}"
+                     class="btn btn-sm btn-outline-primary">
+                    Gestionar
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">
+                  No hay incidencias registradas para esta votación.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
