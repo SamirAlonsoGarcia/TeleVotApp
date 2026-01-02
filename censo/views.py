@@ -55,6 +55,8 @@ def role_required(*allowed_roles):
         return _wrapped
     return decorator
 
+#Pagina inicial para entrar a la aplicacion: Tablon de anuncios con noticias + login
+
 def tablonAnuncios(request):
     lista_noticias = Noticias.objects.all()
     form = LoginForm()
@@ -152,6 +154,8 @@ def seleccionar_rol(request):
 
     roles_para_template = [{'code': r, 'label': ROL_LABELS.get(r, r)} for r in roles]
     return render(request, 'seleccion/SeleccionRol.html', {'roles': roles_para_template})
+
+#Paginas de inicio por roles
 
 @role_required('mesa')
 def Inicio_mesa(request):
@@ -270,6 +274,8 @@ def Inicio_admin(request):
     """
     return render(request, 'roles/admin/inicio.html', {})
 
+#ROL ADMINISTRADOR
+#Funciones correspondientes al rol de administrador
 
 @role_required('admin')
 @transaction.atomic
@@ -355,6 +361,9 @@ def admin_gestion_usuarios(request):
 
     return render(request, 'roles/admin/Gestion_usuarios.html', {'usuarios': usuarios,'roles_por_usuario': roles_por_usuario,})
 
+#ROL JUNTA ELECTORAL
+#Funciones correspondientes al rol de junta electoral
+
 @role_required('junta')
 def Junta_censos(request):
     censos = Censo.objects.all()
@@ -398,7 +407,7 @@ def junta_censo_subir_excel(request):
             messages.error(request, f'Error al subir censo: {ex}')
             return redirect('Junta_censos')
 
-    # GET → formulario de subida dentro del propio Censos.html
+    # GET - formulario de subida dentro del propio Censos.html
     return redirect('Junta_censos')
 
 @transaction.atomic
@@ -714,6 +723,7 @@ def inscribir_usuarios_censo(request):
     # Si entra por GET u otro método redireccionamos a la pagina inicial de censos
     return redirect('Junta_censos')
 
+@role_required('junta')
 def junta_votaciones_gestionar (request):
     
     #Carga la pantalla de gestión de una votación concreta para la Junta Electoral.
@@ -745,6 +755,7 @@ def junta_votaciones_gestionar (request):
 
     return render(request,'roles/junta/ManejarVotacion.html',{'votacion': votacion,'censos': censos,'form1': form_candidatura,'mesa_ya_sorteada': mesa_ya_sorteada,'candidaturas': candidaturas,'integrantes': integrantes_asociados,})
 
+@role_required('junta')
 def junta_vot_eliminar_candidatura(request):
     #hay que tocar todo esto
     if request.method == "POST":
@@ -800,6 +811,7 @@ def junta_votaciones_listado(request):
 
     return render(request,'roles/junta/Votaciones.html',{'votaciones': votaciones,'form_nueva': form_nueva,})
 
+@role_required('junta')
 def junta_incidencias (request):
     #Listado de incidencias para la Junta Electoral.
     incidencias = Incidencia.objects.select_related('IdUsuario', 'IdCenso', 'IdVotacion').order_by('-IdIncidencia')
@@ -829,7 +841,7 @@ def junta_incidencias (request):
     
     return render(request, 'roles/junta/Incidencias.html', {'incidencias': incidencias,'form': form,'incidencia_actual': incidencia_actual,})
 
-
+@role_required('junta')
 def junta_noticias (request):
     #Gestionamos(ver, crear, editar y eliminar) las noticias de la aplicación desde la Junta Electoral, y se muestran en la pantalla principal de la aplicación.
     noticias = Noticias.objects.all().order_by('-IdNoticia')
@@ -871,6 +883,31 @@ def junta_noticias (request):
             form = JuntaNoticiaForm()
     return render(request, 'roles/junta/Noticias.html', {'noticias': noticias,'form': form,'noticia_actual': noticia_actual,})
 
+role_required('junta')
+def nueva_votacion(request):
+    #Crear una nueva votación desde Junta Electoral.
+    if request.method == "POST" :
+        form = NuevaVotacionForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Mapeamos campos del form al modelo Votacion
+            Votacion.objects.create(
+                TituloVotacion=form.cleaned_data['tituloVotacion'],
+                NParticipantes=form.cleaned_data['numeroParticipantes'],
+                BasesVotacion=form.cleaned_data['basesVotacion'],
+                Descripcion=form.cleaned_data['descripcion'],
+                # Resultado, Estado y RecuentoAutorizado se quedan con sus defaults
+            )
+            messages.success(request, 'Votación creada correctamente.')
+            return redirect('Junta_votaciones_listado')
+        else:
+            messages.error(request, "Error al crear la votación. Revisa los datos.")
+    else:
+        form= NuevaVotacionForm()
+
+    return render(request, 'roles/junta/NuevaVotacion.html', {'form': form})
+
+#ROL MESA ELECTORAL
+#Funciones correspondientes al rol de mesa electoral
 
 @role_required('mesa')
 def mesa_certificado(request):
@@ -1103,6 +1140,9 @@ def mesa_incidencias(request):
 
     return render(request, 'roles/mesa/Incidencias_mesa.html', {'mesa': mesa,'votacion': votacion,'incidencias': incidencias,'form': form,'incidencia_actual': incidencia_actual,})
 
+#ROL ELECTOR
+#Funciones correspondientes al rol de elector
+
 @role_required('elector')
 def Censo_view(request):
     censos = Censo.objects.filter(censousuario__usuario=request.user).distinct()
@@ -1195,10 +1235,6 @@ def Noticia(request):
     noticias = Noticias.objects.all()
     return render(request, 'Noticias.html', {'noticias': noticias})
 
-# En guia de usuario como es comun para todos los roles no se pone el decorador de rol_required
-def GuiaUsuario(request):
-    return render(request, 'Guia_de_Usuario.html')
-
 @role_required('elector')
 def MandarIncidenciaCenso(request):
     if request.method=="POST" :
@@ -1284,29 +1320,6 @@ def Noticia(request):
 
     return render(request,'roles/elector/Noticias.html',{'noticias': noticias})
 
-role_required('junta')
-def nueva_votacion(request):
-    #Crear una nueva votación desde Junta Electoral.
-    if request.method == "POST" :
-        form = NuevaVotacionForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Mapeamos campos del form al modelo Votacion
-            Votacion.objects.create(
-                TituloVotacion=form.cleaned_data['tituloVotacion'],
-                NParticipantes=form.cleaned_data['numeroParticipantes'],
-                BasesVotacion=form.cleaned_data['basesVotacion'],
-                Descripcion=form.cleaned_data['descripcion'],
-                # Resultado, Estado y RecuentoAutorizado se quedan con sus defaults
-            )
-            messages.success(request, 'Votación creada correctamente.')
-            return redirect('Junta_votaciones_listado')
-        else:
-            messages.error(request, "Error al crear la votación. Revisa los datos.")
-    else:
-        form= NuevaVotacionForm()
-
-    return render(request, 'roles/junta/NuevaVotacion.html', {'form': form})
-
 @role_required('elector')
 def elector_incidencias(request):
     #Listado de incidencias creadas por el elector.
@@ -1314,6 +1327,16 @@ def elector_incidencias(request):
 
     return render(request, 'roles/elector/Incidencias.html', {'incidencias': incidencias,})
 
+#FUNCIONES QUE NO NECESITAN DE DECORADOR DE ROL
+#Funciones generales que no necesitan de un rol específico
+
+def descargar_plantilla(request):
+    file_path = os.path.join(settings.MEDIA_ROOT, 'Plantilla_Censos.xlsx')
+    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename='Plantilla_Censos.xlsx')
+
+def crear_hash_unico(nombre,apellidos,dni):
+    aleatorio = f"{nombre}{apellidos}{dni}{uuid.uuid4()}"
+    return hashlib.sha256(aleatorio.encode()).hexdigest()
 
 def enviarNotificacionUsuario(usuario, votacion):
     try:
@@ -1375,369 +1398,10 @@ def mesa_clave_privada_desbloqueada(request, segundos=300):
         return (timezone.now().timestamp() - float(ts)) <= segundos
     except Exception:
         return False
-
-    ######## ANTIGUO ##############
-
-@login_required
-@user_passes_test(es_admin)
-def Administracion(request):
-    incidencias = Incidencia.objects.exclude(IncidenciaSolucionada=True)
-    form = NuevoUsuarioForm()
-    form1 = NuevaVotacionForm()
-    censos = Censo.objects.all()
-    votaciones = Votacion.objects.all()
-    mesas_electorales = MesaElectoral.objects.all()
-    return render(request, 'Administracion.html', {'incidencias': incidencias, 'form':form, 'form1':form1,'censos': censos, 'votaciones': votaciones, 'mesasElectorales':mesas_electorales})
-
-@login_required
-def Votacion_gestionar(request):
-    if request.mode == 'POST':
-        id_votacion = request.POST.get('votacion_id')
-        accion = request.POST.get('accion')
-        if not id_votacion:
-            messages.error(request, "No Has seleccionado ninguna votacion")
-            return redirect(Votacion_view)
-        
-        if accion == 'entrar':
-            return redirect()
-
-    return redirect(Votacion_view)
-
-#@login_required
-#class EmitirVotoView(View):
-#    def get(self, request, votacion_id):
-#        votacion=Votacion.objects.get(IdVotacion=votacion_id)
-#        candid_votacion = CandidatosNombrados.objects.filter(votacion=votacion)
-#        candidaturas = Candidatura.objects.filter(
-#            IdCandidatura__in=candid_votacion.values_list('candidatura__IdCandidatura', flat=True)
-#        )
-#        return render(request, 'EmitirVotacion.html' ,{'candidaturas': candidaturas,'votacion_id': votacion_id})
-#
-#    def post(self, request):
-#        data = json.loads(request.body)
-#        contenido = data.get('contenido')
-#        firma = data.get('firma')
-
-#        Voto.objects.create(
-#            usuario=request.user,
-#            contenido=contenido,
-#            firma_digital=firma,
-#        )
-
-#        return JsonResponse({'status': 'ok'})
-
-
-#def login_view(request):
-#    form = LoginForm(request.POST or None)
-#    noticias = Noticias.objects.exclude(IdVotacionRelacionada=0)
-#    censos = Censo.objects.all()
-#    mesas = MesaElectoral.objects.all()
-#    votaciones = Votacion.objects.exclude(Estado=False)
-
-#    if request.method == 'POST' and form.is_valid():
-#        documento_fiscal = form.cleaned_data['documento_fiscal']
-#        password = form.cleaned_data['password']
-#
-#        user = authenticate(request, username=documento_fiscal, password=password)
-#
-#        if user is not None:
-#            login(request, user)
-#            return redirect('inicio')  
-#        else:
-#            messages.error(request, 'Documento Fiscal y/o contraseña incorrectos.')
-#
-#    return render(request, 'Tablon_de_Anuncios.html', {'form': form , 'noticias': noticias, 'censos': censos, 'mesas': mesas, 'votaciones': votaciones})
-
-
-
-def descargar_plantilla(request):
-    file_path = os.path.join(settings.MEDIA_ROOT, 'Plantilla_Censos.xlsx')
-    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename='Plantilla_Censos.xlsx')
-
-@login_required
-def logout_view(request):
-    logout(request)
-    return redirect('login_view')
     
-def crear_hash_unico(nombre,apellidos,dni):
-    aleatorio = f"{nombre}{apellidos}{dni}{uuid.uuid4()}"
-    return hashlib.sha256(aleatorio.encode()).hexdigest()
-    
-@login_required
-@user_passes_test(es_admin)
-def nuevo_usuario(request):
-    if request.method == "POST" :
-        form = NuevoUsuarioForm(request.POST)
-        if form.is_valid():
-            nombre_usuario = form.cleaned_data["Nombre"]
-            apellidos_usuario = form.cleaned_data["Apellidos"]
-            dni_usuario = form.cleaned_data["DocumentoFiscal"]
-            email_usuario = form.cleaned_data["Email"]
-            clave_encriptada = crear_hash_unico(nombre_usuario,apellidos_usuario,dni_usuario)
-        try:
-            FunUsuarioNuevo(nombre_usuario,apellidos_usuario,dni_usuario,email_usuario,clave_encriptada)
-            messages.success(request, "Usuario Creado Correctamente")
-        except IntegrityError as e:
-            messages.error(request, "No se ha podido Insertar el usuario, ya esta creado en la BD")
-        except Exception as ex:
-            messages.error(request, f"No se ha podido Insertar el usuario, revisa los datos {str(ex)}")
-            return redirect('administracion')
-    else:
-        form=NuevoUsuarioForm()
-        
-    return render(request, 'Administracion.html', {'form': form})
-
-def FunUsuarioNuevo(nombreUsuario, apellidosUsuario, Dni, email, claveUser):
-    usuario_nuevo = Usuario.objects.create(
-        Nombre=nombreUsuario,
-        Apellidos=apellidosUsuario,
-        DocumentoFiscal = Dni,
-        email=email,
-        username=Dni,
-        IdEncriptado=claveUser
-    )
-    usuario_nuevo.save()
-    return usuario_nuevo
-
-@login_required
-@user_passes_test(es_admin)
-def gestionar_votaciones(request):
-    votacion_id = request.POST.get("votacion_id") or request.GET.get("votacion_id")
-    if votacion_id:
-        votacion = Votacion.objects.get(IdVotacion=votacion_id)
-        censos = Censo.objects.all()
-        form1 = NuevaCandidaturaForm()
-        mesa_ya_sorteada = MesaElectoral.objects.filter(IdVotacion=votacion).exists()
-        candidaturas_votacion = Candidatura.objects.filter(candidatosnombrados__votacion=votacion)
-        integrantes_asociados={}
-        for candidatura in candidaturas_votacion:
-            integrantes = IntegrantesCandidatura.objects.filter(candidatura=candidatura).select_related('usuario')
-            integrantes_asociados[candidatura.IdCandidatura] = [integra.usuario.username for integra in integrantes]
-        return render(request, "ManejarVotacion.html", {'form1': form1,'censos': censos,'votacion': votacion,'mesa_ya_sorteada': mesa_ya_sorteada, 'candidaturas':candidaturas_votacion, 'integrantes':integrantes_asociados})
-    
-    messages.error("No has seleccionado ninguna votacion")
-    return redirect('administracion')
-
-# es sustituido por Junta_vot_asignar_censo
-#def asignar_censo_votacion(request):
-#    if request.method == "POST":
-#        censo_id = request.POST.get("censo_id")
-#        votacion_id = request.POST.get("votacion_id")
-
-#        if not censo_id or not votacion_id:
-#            messages.error(request, "No has seleccionado ningún censo o votación.")
-#            return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-#        else:
-#            censo = Censo.objects.get(IdCenso=censo_id)
-#            votacion = Votacion.objects.get(IdVotacion=votacion_id)
-
-#            __, creado = CensoVotacion.objects.get_or_create(
-#                censo=censo,
-#                votacion=votacion
-#            )
-
-#            if creado:
-#                messages.success(request, f"Se asignó el censo {censo.NombreCenso} a la votación {votacion.TituloVotacion}.")
-#                return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-#            else:
-#                messages.error(request, f"Ya estaba asociado el censo {censo.NombreCenso} a la votación {votacion.TituloVotacion}.")
-#                return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-
-#    return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-
-@login_required
-@user_passes_test(es_admin)
-def crear_candidatura(request):
-    if request.method == "POST":        
-        form = NuevaCandidaturaForm(request.POST)
-        votacion_id = request.POST.get("votacion_id")
-        votacionSel = Votacion.objects.get(IdVotacion=votacion_id)
-        if form.is_valid():
-            candidatura_nueva=form.save(commit=False)
-            candidatura_nueva.save()
-            for usuario in form.cleaned_data['usuarios']:
-                IntegrantesCandidatura.objects.create(candidatura=candidatura_nueva, usuario=usuario)
-            CandidatosNombrados.objects.get_or_create(votacion=votacionSel,candidatura=candidatura_nueva)
-            messages.success(request,"Se creo la nueva candidatura correctamente")
-            return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-    return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-#@login_required
-#@user_passes_test(es_admin)
-#def asignar_usuarios_votacion(request):
-#    if request.method == "POST":
-#        votacion_id = request.POST.get("votacion_id")
-#        votacionSel = Votacion.objects.get(IdVotacion=votacion_id)
-#        votacionCenso=CensoVotacion.objects.get(votacion=votacionSel)
-#        censo = votacionCenso.censo
-#        usuariosCenso=CensoUsuario.objects.filter(censo=censo)
-#        if usuariosCenso.exists():
-#            for user in usuariosCenso:
-#                InscritosVotacion.objects.get_or_create(votacion=votacionSel, usuario=user.usuario)
-#            messages.success(request,"Se ha incluido los usuarios del censo asociado a la votacion")
-#        else:
-#            messages.error(request,"No esta asociado el censo todavia a la votacion")
-#    return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-
-
-@login_required
-@user_passes_test(es_admin)
-def notificar_usuarios_votacion(request):
-    if request.method == "POST":  
-        votacion_id = request.POST.get("votacion_id")
-        votacionSel = Votacion.objects.get(IdVotacion=votacion_id)
-        
-        try:
-            votacionCenso = CensoVotacion.objects.get(votacion=votacionSel)
-        except CensoVotacion.DoesNotExist:
-            messages.error(request, "No está asociado ningún censo a esta votación.")
-            return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-
-        censo = votacionCenso.censo
-        usuariosCenso = CensoUsuario.objects.filter(censo=censo)
-        errores = []
-        for user in usuariosCenso:
-            exito = enviarNotificacionUsuario(user, votacionSel)
-            if not exito:
-                # usuario que no ha sido notificado.
-                errores.append(str(user))  
-
-        if errores:
-            messages.error(request,f"Algunos correos no se pudieron enviar: {', '.join(errores)}")
-        else:
-            messages.success(request, "Se notificó correctamente a todos los usuarios.")
-
-    return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-
-    
-@login_required
-@user_passes_test(es_admin)
-def sortear_mesa(request):
-    #obtenemos la info de que votacion es
-    votacion_id = request.POST.get("votacion_id")
-    votacion=Votacion.objects.get(IdVotacion=votacion_id)
-    #comprobamos que la mesa no exista, que este sorteada
-    mesa_ya_sorteada= MesaElectoral.objects.filter(IdVotacion=votacion_id)
-    if not mesa_ya_sorteada and request.method == "POST":
-        censo_votacion = CensoVotacion.objects.get(votacion=votacion)
-        if not censo_votacion:
-            messages.error(request, f"La votacion {votacion.TituloVotacion} no tiene un censo asociado. Asocia primero el censo a la votacion, crea la/s candidaturas y despues repite el proceso")
-            return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-        else:
-            # Obtenemos si hay candidatura asociada a la votacion, y si no la hay no continuamos el proceso
-            candidaturas = CandidatosNombrados.objects.filter(votacion=votacion).values_list('candidatura', flat=True)
-            if not candidaturas:
-                messages.error(request,f"La Votacion {votacion.TituloVotacion} no tiene ninguna candidatura creada. Crea primero la candidatura ya que los candidatos no son seleccionables para la mesa.")
-                return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-            else:
-                usuarios_candidatos_ids = set()
-                for candidatura_id in candidaturas:
-                    usuarios = IntegrantesCandidatura.objects.filter(candidatura=candidatura_id).values_list('usuario', flat=True)
-                    usuarios_candidatos_ids.update(usuarios)
-
-                usuarios_censo_ids = CensoUsuario.objects.filter(censo=censo_votacion.censo).values_list('usuario', flat=True)
-                usuarios_elegibles = Usuario.objects.filter(id__in=usuarios_censo_ids).exclude(id__in=usuarios_candidatos_ids)
-
-                # 1 mesa por cada 25 personas (redondeado hacia arriba)
-                total_usuarios = usuarios_elegibles.count()
-                n_componentes_mesa = math.ceil(total_usuarios / 25)
-
-                usuarios_seleccionados = random.sample(list(usuarios_elegibles), n_componentes_mesa)
-                nueva_mesa=MesaElectoral.objects.create(IdVotacion=votacion,NombreMesa=f"{votacion.TituloVotacion}" + " " + "Mesa Electoral 1",Sorteada=True)
-                for us in usuarios_seleccionados:
-                    IntegrantesMesa.objects.create(usuario=us,mesa=nueva_mesa)
-
-                messages.success(request, "Se han creado y sorteado las mesas necesarias. Queda pendiente la asignacion de los certificados de cada")
-                return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-    else:
-        messages.error(request, f"La mesa/s electoral/es de esta votacion: {votacion.TituloVotacion}  ya esta creada/s.")
-        return HttpResponseRedirect(f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-
-@login_required
-@user_passes_test(es_admin)    
-def eliminar_candidaturas(request):
-    votacion_id = request.POST.get("votacion_id")
-    candidatura_id = request.POST.get("candidatura_id")
-    candidatura = Candidatura.objects.get(IdCandidatura=candidatura_id)
-    if candidatura:
-        Candidatura.objects.delete(candidatura)
-    else:
-        messages.error("No has seleccionado ninguna candidatura para eliminar")
-        return HttpResponseRedirect(request,f"{reverse('gestionar_votaciones')}?votacion_id={votacion_id}")
-
-
-@login_required
-@user_passes_test(es_admin)
-def asignar_certificado_mesa(request):
-    mesa_electoral_id = request.POST.get("mesa_id")
-    mesa_electoral=MesaElectoral.objects.get(IdMesa=mesa_electoral_id)
-    if mesa_electoral:
-        clave_privada = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048
-        )
-        clave_privada_encriptada = clave_privada.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=serialization.NoEncryption()
-        ).decode('utf-8')
-
-        clave_publica_encriptada = clave_privada.public_key().public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ).decode('utf-8')
-
-        Certificado.objects.create(
-            TipoCertificado='mesa',
-            clave_publica=clave_publica_encriptada,
-            clave_privada=clave_privada_encriptada,
-            propietario_mesa = mesa_electoral
-        )
-        messages.success("Se ha asignado el certificado a la mesa electoral")
-        return redirect(request,'administracion')
-    else:
-        messages.error("No has seleccionado ninguna Mesa Electoral")
-        return redirect(request,'administracion')
-    
-
-def cambiar_contraseña(request):
-    return render(request, 'CambiarContraseña.html')
-
-def modificar_contraseña(request):
-    if request.method =="POST":
-        usuario_id = request.POST.get('usuario_id')
-        user = Usuario.objects.get(DocumentoFiscal=usuario_id)
-        antigua_contraseña = request.POST.get('antigua_contraseña')
-        nueva_contraseña = request.POST.get('nueva_contraseña')
-        confir_contraseña = request.POST.get('confirmar_contraseña')
-        if user:
-            if request.user.check_password(antigua_contraseña):
-                messages.error("La contraseña anterior no es la correcta, por favor prueba otra vez")
-                return redirect(request,'cambiar_contraseña')
-
-            if nueva_contraseña != confir_contraseña :
-                messages.error("No has introducido la misma nueva contraseña. Vuelve a intentarlo y asegurate que sean la misma.")
-                return redirect(request,'cambiar_contraseña')
-            
-            user.set_password(nueva_contraseña)
-            user.primera_vez=False
-            user.save()
-
-            messages.success(request,f"Se modifico correctamente la contraseña del usuario: {user.DocumentoFiscal}")
-            return redirect('login')
-        else:
-            messages.error(request,"El usuario introducio no existe. Por favor revisa que el usuario sea correcto")
-        
-
-    return redirect('login')
-
-def volverInicio(request):
-    return redirect('login')
-
-def obtenerCertificados(usuario, votacion_id):
-    cert_usuario = Certificado.objects.get(propietario_usuario=usuario)
-    mesaVot = MesaElectoral.objects.get(IdVotacion=votacion_id)
-    cert_mesa = Certificado.objects.get(propietario_mesa=mesaVot)
-    return({"cla_usuario_privado":cert_usuario.clave_privada, "cla_mesa_publica":cert_mesa.clave_publica})
+# En guia de usuario como es comun para todos los roles no se pone el decorador de rol_required
+def GuiaUsuario(request):
+    return render(request, 'Guia_de_Usuario.html')
 
 def cifrar_clave_publica(contenido, clave_publica):
     clave_pub = serialization.load_pem_public_key(clave_publica.encode(),backend=default_backend())
@@ -1803,46 +1467,109 @@ def descifrar_con_clave_privada(contenido_cifrado_base64, clave_privada):
 
     return contenido_descifrado.decode()
 
-@login_required
-def estadisticasVotacion(request):
-    votacion_id=request.POST.get("votacion_id")
-    votacion=Votacion.objects.get(IdVotacion=votacion_id)
-    #votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
+def cambiar_contraseña(request):
+    return render(request, 'CambiarContraseña.html')
+
+def modificar_contraseña(request):
+    if request.method !="POST":
+        return redirect('login')
+
+    usuario_id = (request.POST.get('usuario_id') or "").strip()
+    antigua_contraseña = (request.POST.get('antigua_contraseña') or "").strip()
+    nueva_contraseña = (request.POST.get('nueva_contraseña') or "").strip()
+    confir_contraseña = (request.POST.get('confirmar_contraseña') or "").strip()
     
-    total_esperado = votacion.NParticipantes
-    total_emitidos = Voto.objects.filter(IdVotacion=votacion).count()
+    #validar usuario
+    try:
+        user = Usuario.objects.get(DocumentoFiscal=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request,"El usuario introducido no existe. Por favor revisa que el usuario sea correcto")
+        return redirect('cambiar_contraseña')
+    #validar antigua contraseña
+    if not user.check_password(antigua_contraseña):
+        messages.error(request,"La contraseña anterior no es la correcta, por favor prueba otra vez")
+        return redirect('cambiar_contraseña')
+    #validar nueva contraseña
+    if nueva_contraseña != confir_contraseña :
+        messages.error(request,"No has introducido la misma nueva contraseña. Vuelve a intentarlo y asegurate que sean la misma.")
+        return redirect('cambiar_contraseña')
+    if len(nueva_contraseña) < 6:  
+        messages.error(request,"La nueva contraseña debe tener al menos 6 caracteres.")
+        return redirect('cambiar_contraseña')
+    #actualizamos
+    user.set_password(nueva_contraseña)
+    user.primera_vez=False
+    user.save()
+    messages.success(request,f"Se modificó correctamente la contraseña del usuario: {user.DocumentoFiscal}")
+    return redirect('login')
 
-    participacion = (total_emitidos / total_esperado) * 100 if total_esperado else 0
+def volverInicio(request):
+    return redirect('login')
 
-    # Confirmación de voto (usuario ha votado)
-    ya_votado = Voto.objects.filter(IdVotacion=votacion, idUsuario=request.user).exists()
+def obtenerCertificados(usuario, votacion_id):
+    cert_usuario = Certificado.objects.get(propietario_usuario=usuario)
+    mesaVot = MesaElectoral.objects.get(IdVotacion=votacion_id)
+    cert_mesa = Certificado.objects.get(propietario_mesa=mesaVot)
+    return({"cla_usuario_privado":cert_usuario.clave_privada, "cla_mesa_publica":cert_mesa.clave_publica})
 
-    return render(request, 'EstadisticasVotacion.html', {'votacion': votacion,'total_esperado': total_esperado,'total_emitidos': total_emitidos,'participacion': participacion,'ya_votado': ya_votado})
+def logout(request):
+    logout(request)
+    return redirect('login')
+
+    ######## ANTIGUO ##############
+    
+@login_required
+@user_passes_test(es_admin)
+def nuevo_usuario(request):
+    if request.method == "POST" :
+        form = NuevoUsuarioForm(request.POST)
+        if form.is_valid():
+            nombre_usuario = form.cleaned_data["Nombre"]
+            apellidos_usuario = form.cleaned_data["Apellidos"]
+            dni_usuario = form.cleaned_data["DocumentoFiscal"]
+            email_usuario = form.cleaned_data["Email"]
+            clave_encriptada = crear_hash_unico(nombre_usuario,apellidos_usuario,dni_usuario)
+        try:
+            FunUsuarioNuevo(nombre_usuario,apellidos_usuario,dni_usuario,email_usuario,clave_encriptada)
+            messages.success(request, "Usuario Creado Correctamente")
+        except IntegrityError as e:
+            messages.error(request, "No se ha podido Insertar el usuario, ya esta creado en la BD")
+        except Exception as ex:
+            messages.error(request, f"No se ha podido Insertar el usuario, revisa los datos {str(ex)}")
+            return redirect('administracion')
+    else:
+        form=NuevoUsuarioForm()
+        
+    return render(request, 'Administracion.html', {'form': form})
+
+def FunUsuarioNuevo(nombreUsuario, apellidosUsuario, Dni, email, claveUser):
+    usuario_nuevo = Usuario.objects.create(
+        Nombre=nombreUsuario,
+        Apellidos=apellidosUsuario,
+        DocumentoFiscal = Dni,
+        email=email,
+        username=Dni,
+        IdEncriptado=claveUser
+    )
+    usuario_nuevo.save()
+    return usuario_nuevo
 
 @login_required
-def recuentoVotacion(request):
-    votacion_id=request.POST.get("votacion_id")
-    votacion = Votacion.objects.get(IdVotacion=votacion_id)
-
-    # Verifica que el usuario es miembro de la mesa para esa votación
-    es_miembro_mesa = MesaElectoral.objects.filter(votacion=votacion, usuario=request.user).exists()
-
-    if not es_miembro_mesa:
-        return HttpResponseForbidden("No tienes permiso para autorizar el recuento.")
-
-    # Cambiar el estado de la votación
-    if votacion.estado == False:
-        votacion.RecuentoAutorizado = True
-        votacion.save()
-        messages.success(request, "Se ha autorizado el recuento.")
-        mesa_nombra = MesaElectoral.objects.get(votacion=votacion)
-        certificados = Certificado.objects.get(propietario_mesa=mesa_nombra)
-        return render(request, 'RecuentoVotacion.Html', {'certificados':certificados, 'votacion':votacion})
-    else:
-        messages.warning(request, "La votación aún no está cerrada o ya se autorizó el recuento.")
-        return redirect(request,'votaciones')
-
-#@login_required
-#def Incidencias(request):
-#    return redirect('votaciones')
+@user_passes_test(es_admin)
+def gestionar_votaciones(request):
+    votacion_id = request.POST.get("votacion_id") or request.GET.get("votacion_id")
+    if votacion_id:
+        votacion = Votacion.objects.get(IdVotacion=votacion_id)
+        censos = Censo.objects.all()
+        form1 = NuevaCandidaturaForm()
+        mesa_ya_sorteada = MesaElectoral.objects.filter(IdVotacion=votacion).exists()
+        candidaturas_votacion = Candidatura.objects.filter(candidatosnombrados__votacion=votacion)
+        integrantes_asociados={}
+        for candidatura in candidaturas_votacion:
+            integrantes = IntegrantesCandidatura.objects.filter(candidatura=candidatura).select_related('usuario')
+            integrantes_asociados[candidatura.IdCandidatura] = [integra.usuario.username for integra in integrantes]
+        return render(request, "ManejarVotacion.html", {'form1': form1,'censos': censos,'votacion': votacion,'mesa_ya_sorteada': mesa_ya_sorteada, 'candidaturas':candidaturas_votacion, 'integrantes':integrantes_asociados})
+    
+    messages.error("No has seleccionado ninguna votacion")
+    return redirect('administracion')
 

@@ -23,7 +23,7 @@
           </p>
         {% endfor %}
 
-        <form method="post" enctype="multipart/form-data" action="{% url 'crear_certificado_personal' %}">
+        <form method="post" enctype="multipart/form-data" action="{% url 'Elector_crear_certificado' %}">
           {% csrf_token %}
           <button type="submit" class="btn btn-secondary">
             Generar certificado propio de la aplicación
