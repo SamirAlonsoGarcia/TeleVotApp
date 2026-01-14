@@ -6,7 +6,7 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-10">
-    <form id="form_voto" method="post" action="{% url 'certificar_voto' %}">
+    <form id="form_voto" method="post" action="{% url 'Elector_certificar_voto' %}">
       {% csrf_token %}
       <div class="card shadow-sm">
         <div class="card-header text-white" style="background-color:#103957;">

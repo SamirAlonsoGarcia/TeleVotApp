@@ -25,6 +25,15 @@
                 <p class="text-muted mb-0" style="font-size: 0.9rem;">
                     Candidatura: <strong>{{ candidatura.NombreCandidatura }}</strong> ·
                     Votación: <strong>{{ votacion.TituloVotacion }}</strong>
+                    {% if fase_actual %}
+                        <div class="alert alert-info">
+                            <strong>Fase actual:</strong> {{ fase_actual|capfirst }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            La votación no tiene calendario o no hay fase activa.
+                        </div>
+                    {% endif %}
                 </p>
                 <p class="text-muted mb-0" style="font-size: 0.85rem;">
                     Comunicaciones enviadas hoy: <strong>{{ envios_hoy }}</strong> / 3
@@ -73,7 +82,10 @@
                         <input type="file" name="imagen_adjunto" class="form-control" accept="image/jpeg">
                     </div>
 
-                    <button class="btn btn-primary mt-3" type="submit">Enviar comunicación</button>
+                    <button type="submit" class="btn btn-primary"
+                        {% if fase_actual != "campaña" %}disabled{% endif %}>
+                        Enviar comunicación
+                    </button>
                     </form>
 
                 </div>

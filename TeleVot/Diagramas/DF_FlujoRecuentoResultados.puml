@@ -1,0 +1,41 @@
+@startuml
+title TeleVotApp - Flujo de recuento y publicación de resultados
+
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam linetype ortho
+
+start
+
+:Finaliza periodo de votación;
+
+partition "Sistema" {
+  :Bloquear emisión de votos;
+  :Marcar votación como pendiente de recuento;
+}
+
+partition "Junta Electoral" {
+  if (¿Autorizar recuento?) then (Sí)
+    :Establecer RecuentoAutorizado = True;
+  else (No)
+    :Recuento no autorizado;
+    stop
+  endif
+}
+
+partition "Mesa Electoral" {
+  if (¿Recuento autorizado?) then (Sí)
+    :Acceder a votos de la votación;
+    :Realizar recuento;
+    :Determinar candidatura ganadora;
+    :Actualizar resultado (Votacion.Resultado);
+    :Publicar resultados;
+  else (No)
+    :Acceso al recuento bloqueado;
+  endif
+}
+
+:Proceso electoral finalizado;
+stop
+
+@enduml

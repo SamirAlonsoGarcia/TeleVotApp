@@ -1,0 +1,67 @@
+@startuml
+title TeleVotApp - Flujo general del ciclo electoral (alto nivel)
+
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam linetype ortho
+
+start
+
+:Inicio del proceso;
+
+partition "Administrador del sistema" {
+  :Crear usuarios (si aplica);
+  :Crear Junta Electoral;
+  :Asignar usuarios a la Junta Electoral;
+}
+
+partition "Junta Electoral" {
+  :Crear votación (Votacion);
+  :Definir calendario (CalendarioVotacion);
+  :Asociar censo a votación (Censo, CensoVotacion);
+  :Publicar censo provisional;
+  :Gestionar alegaciones (Incidencia);
+  :Cerrar censo;
+  :Gestionar candidaturas (Candidatura, CandidatosNombrados);
+  :Asignar director de campaña;
+  :Constituir / sortear mesa (MesaElectoral, IntegrantesMesa);
+}
+
+partition "Director de campaña" {
+  :Enviar comunicaciones de campaña (ComunicacionDirector);
+}
+
+partition "Sistema / Tiempo" {
+  :Apertura fase de votación\n(según calendario/estado);
+}
+
+partition "Elector" {
+  :Autenticación e identificación;
+  :Comprobar pertenencia al censo\ny condiciones de voto;
+  :Emitir voto (Voto);
+  :Confirmación de voto;
+}
+
+partition "Sistema / Tiempo" {
+  :Cierre de votación\n(según calendario/estado);
+  :Marcar recuento pendiente;
+}
+
+partition "Junta Electoral" {
+  :Autorizar recuento\n(RecuentoAutorizado = True);
+}
+
+partition "Mesa Electoral" {
+  if (¿Recuento autorizado?) then (Sí)
+    :Recuento de votos;
+    :Actualizar resultado (Votacion.Resultado);
+    :Publicación de resultados;
+  else (No)
+    :Recuento bloqueado;
+  endif
+}
+
+:Fin del proceso;
+stop
+
+@enduml

@@ -56,6 +56,8 @@ urlpatterns=[
     # certificados personales
     path('elector/certificados/crear/', views.crear_certificado_personal, name='Elector_crear_certificado'),
     path('elector/votaciones/certificar-voto/', views.certificar_voto, name='Elector_certificar_voto'),
+    # descargar plantilla censo
+    path('descargar-plantilla/', views.descargar_plantilla, name='descargar_plantilla'),
     # guia de usuario para tqodos los roles, va en el footer
     path('guia-usuario/', views.GuiaUsuario, name='Guia_usuario_global'),
     # modificar contraseña

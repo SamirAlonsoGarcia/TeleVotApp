@@ -14,14 +14,139 @@
       <h4 class="mt-3">Estado: {{ votacion.Estado|yesno:"Activa,Inactiva" }}</h4>
       <p class="mt-2">{{ votacion.Descripcion }}</p>
     </div>
-  </div>
-
+  </div><!--row-->
   <br>
-
-  <!-- ASIGNAR CENSOS / NOTIFICAR USUARIOS -->
-  <div class="row g-4">
-    <div class="col-12 col-lg-6">
+  <div class="row g-4>">
+    <!--CALENDARIO-->
+    <div class="col-12 col-lg-8">
       <div class="card h-100">
+        <div class="card shadow-sm">
+          <div class="card-header text-white" style="background-color:#103957;">
+            <h5 class="mb-0">Calendario de la votación</h5>
+          </div>
+
+          <div class="card-body">
+
+            {% if calendario %}
+              <p class="text-muted small mb-2">
+                Calendario creado. Bloqueo de modificaciones a partir de: <strong>{{ calendario.fecha_no_modificacion }}</strong>
+              </p>
+            {% else %}
+              <p class="text-muted small mb-2">
+                Esta votación todavía no tiene calendario. Crea uno definiendo fechas y duraciones.
+              </p>
+            {% endif %}
+
+            {% if calendario_bloqueado %}
+              <div class="alert alert-warning">
+                El calendario está bloqueado y ya no se puede modificar.
+              </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'Junta_votaciones_gestionar' %}">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="guardar_calendario">
+              <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Inicio censos</label>
+                  {{ form_calendario.fecha_censos }}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Duración censos (días)</label>
+                  {{ form_calendario.duracion_censos_dias }}
+                </div>
+
+                <div class="col-md-3">
+                  <label class="form-label">Inicio campaña</label>
+                  {{ form_calendario.fecha_campaña }}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Duración campaña (días)</label>
+                  {{ form_calendario.duracion_campaña_dias }}
+                </div>
+
+                <div class="col-md-3">
+                  <label class="form-label">Inicio votación</label>
+                  {{ form_calendario.fecha_votacion }}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Duración votación (días)</label>
+                  {{ form_calendario.duracion_votacion_dias }}
+                </div>
+
+                <div class="col-md-3">
+                  <label class="form-label">Inicio recuento</label>
+                  {{ form_calendario.fecha_recuento }}
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Duración recuento (días)</label>
+                  {{ form_calendario.duracion_recuento_dias }}
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Publicación resultados (día)</label>
+                  {{ form_calendario.fecha_publicacion_resultados }}
+                </div>
+              </div>
+
+              {% if form_calendario.non_field_errors %}
+                <div class="alert alert-danger mt-3">
+                  {{ form_calendario.non_field_errors }}
+                </div>
+              {% endif %}
+
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary"{% if calendario_bloqueado %}disabled{% endif %}>Guardar calendario</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Acciones rápidas -->
+    <div class="col-12 col-lg-4">
+      <div class="card h-100">
+        <div class="card-header text-white" style="background-color:#103957;">
+          <h4 class="mb-0">Acciones rápidas</h4>
+        </div>
+        <div class="card-body">
+
+          <form method="post" action="{% url 'Junta_vot_inscribir_usuarios' %}" class="mb-2">
+            {% csrf_token %}
+            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+            <button type="submit" class="btn btn-secondary w-100">Asignar usuarios</button>
+          </form>
+
+          <form method="post" action="{% url 'Junta_vot_notificar' %}" class="mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+            <button type="submit" class="btn btn-warning w-100">Notificar inscripción</button>
+          </form>
+
+          <hr>
+
+          {% if mesa_ya_sorteada %}
+            <div class="alert alert-success mb-0">
+              Mesas ya creadas.
+            </div>
+          {% else %}
+            <form method="post" action="{% url 'Junta_vot_sortear_mesa' %}">
+              {% csrf_token %}
+              <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+              <button type="submit" class="btn btn-primary w-100">Sortear Mesa Electoral</button>
+            </form>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div><!--row-->
+<!-- ASIGNAR CENSOS / CANDIDATURAS -->
+  <div class="row g-4 mt-1">
+    <div class="col-12 col-lg-6">
+      <div class="card">
         <div class="card-header text-white" style="background-color:#103957;">
           <h4 class="mb-0">Asignar censos</h4>
         </div>
@@ -59,10 +184,8 @@
           </form>
         </div>
       </div>
-    </div>
-
-    <div class="col-12 col-lg-6">
-      <div class="card h-100">
+      <br>
+      <div class="card">
         <div class="card-header text-white" style="background-color:#103957;">
           <h4 class="mb-0">Notificar usuarios</h4>
         </div>
@@ -81,12 +204,6 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <br>
-
-  <!-- ASIGNAR CANDIDATURA / SORTEAR MESA -->
-  <div class="row g-4">
     <div class="col-12 col-lg-6">
       <div class="card h-100">
         <div class="card-header text-white" style="background-color:#103957;">
@@ -107,7 +224,7 @@
           <form method="post" enctype="multipart/form-data" action="{% url 'Junta_vot_eliminar_candidatura' %}">
             {% csrf_token %}
             <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
-            <div class="table-responsive">
+            <div class="table-responsive" style="max-height: 260px; overflow-y:auto;">
               <table class="table table-hover table-sm">
                 <thead>
                   <tr>
@@ -146,26 +263,6 @@
         </div>
       </div>
     </div>
-
-    <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-header text-white" style="background-color:#103957;">
-          <h4 class="mb-0">Sortear mesa</h4>
-        </div>
-        <div class="card-body">
-          {% if mesa_ya_sorteada %}
-            <p><strong>Estado:</strong> La/s Mesa/s Electoral/es ya están creadas.</p>
-          {% else %}
-            <p><strong>Estado:</strong> Mesa/s Electoral/es no sorteadas.</p>
-            <form method="post" enctype="multipart/form-data" action="{% url 'Junta_vot_sortear_mesa' %}">
-              {% csrf_token %}
-              <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
-              <button type="submit" class="btn btn-primary">Sortear Mesa Electoral</button>
-            </form>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  </div><!--row-->
+</div><!--Container-->
 {% endblock %}

@@ -1,0 +1,31 @@
+@startuml
+title TeleVotApp - Arquitectura general de la aplicación
+
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam linetype ortho
+
+actor Usuario
+
+rectangle "Cliente Web\n(Navegador)" as Cliente {
+  [Interfaz Web]
+}
+
+rectangle "Servidor de Aplicación\nDjango" as Servidor {
+  rectangle "Capa de Presentación\n(Templates)" as Presentacion
+  rectangle "Capa de Lógica de Negocio\n(Views / Servicios)" as Logica
+  rectangle "Capa de Datos\n(Modelos ORM)" as Datos
+}
+
+database "Base de Datos\nPostgreSQL" as BD
+
+Usuario --> Cliente : Interacción
+Cliente --> Presentacion : Solicitudes HTTP
+Presentacion --> Logica : Renderizado / acciones
+Logica --> Datos : Operaciones ORM
+Datos --> BD : Persistencia
+BD --> Datos : Lectura/escritura
+Logica --> Presentacion : Respuesta
+Presentacion --> Cliente : HTML / Respuesta
+
+@enduml

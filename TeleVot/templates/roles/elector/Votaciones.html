@@ -1,5 +1,6 @@
 {% extends "roles/elector/base_elector.html" %}
 {% load static %}
+{% load custom_tags %}
 
 {% block title %}Votaciones · Elector{% endblock %}
 
@@ -18,6 +19,7 @@
           <th>Título</th>
           <th>Participantes</th>
           <th>Descripción</th>
+          <th>Calendario</th>
         </tr>
       </thead>
       <tbody>
@@ -27,10 +29,86 @@
             <td>{{ v1.TituloVotacion }}</td>
             <td>{{ v1.NParticipantes }}</td>
             <td>{{ v1.Descripcion }}</td>
+            <td>
+              <button type="button"
+                class="btn btn-outline-secondary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#calModal{{ v1.IdVotacion }}">
+              Ver calendario
+              </button>
+
+              <!-- MODAL -->
+              <div class="modal fade" id="calModal{{ v1.IdVotacion }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                  <div class="modal-content">
+
+                    <div class="modal-header">
+                      <h5 class="modal-title">
+                        Calendario · {{ v1.TituloVotacion }}
+                      </h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                      {% with info=cal_map|get_item:v1.IdVotacion %}
+                        {% if info %}
+                          <p>
+                            <strong>Fase actual:</strong>
+                            {% if info.fase %}
+                              {{ info.fase|capfirst }}
+                            {% else %}
+                              No activa
+                            {% endif %}
+                          </p>
+
+                          <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                              <tr>
+                                <th>Fase</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for k, r in info.rangos.items %}
+                                <tr {% if info.fase == k %}class="table-warning"{% endif %}>
+                                  <td>{{ k|capfirst }}</td>
+                                  <td>{{ r.0 }}</td>
+                                  <td>{{ r.1 }}</td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+
+                          <p class="text-muted small">
+                            Calendario
+                            {% if info.cal.bloqueado %}
+                              bloqueado
+                            {% else %}
+                              editable
+                            {% endif %}
+                            · No modificación desde {{ info.cal.fecha_no_modificacion }}
+                          </p>
+                        {% else %}
+                          <div class="alert alert-warning">
+                            Esta votación no tiene calendario definido.
+                          </div>
+                        {% endif %}
+                      {% endwith %}
+                    </div>
+
+                    <div class="modal-footer">
+                      <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="4" class="text-muted text-center">No hay votaciones activas.</td>
+            <td colspan="5" class="text-muted text-center">No hay votaciones activas.</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -77,6 +155,7 @@
           <th>Título</th>
           <th>Participantes</th>
           <th>Descripción</th>
+          <th>Calendario</th>
         </tr>
       </thead>
       <tbody>
@@ -86,10 +165,67 @@
             <td>{{ v2.TituloVotacion }}</td>
             <td>{{ v2.NParticipantes }}</td>
             <td>{{ v2.Descripcion }}</td>
+            <td>
+              <button type="button"
+                class="btn btn-outline-secondary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#calModal{{ v2.IdVotacion }}">
+                Ver calendario
+              </button>
+
+              <div class="modal fade" id="calModal{{ v2.IdVotacion }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                  <div class="modal-content">
+
+                    <div class="modal-header">
+                      <h5 class="modal-title">Calendario · {{ v2.TituloVotacion }}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                      {% with info=cal_map|get_item:v2.IdVotacion %}
+                        {% if info %}
+                          <p><strong>Fase actual:</strong>
+                            {% if info.fase %}{{ info.fase|capfirst }}{% else %}No activa{% endif %}
+                          </p>
+
+                          <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                              <tr><th>Fase</th><th>Inicio</th><th>Fin</th></tr>
+                            </thead>
+                            <tbody>
+                              {% for k, r in info.rangos.items %}
+                                <tr {% if info.fase == k %}class="table-warning"{% endif %}>
+                                  <td>{{ k|capfirst }}</td>
+                                  <td>{{ r.0 }}</td>
+                                  <td>{{ r.1 }}</td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+
+                          <p class="text-muted small">
+                            Calendario {% if info.cal.bloqueado %}bloqueado{% else %}editable{% endif %}
+                            · No modificación desde {{ info.cal.fecha_no_modificacion }}
+                          </p>
+                        {% else %}
+                          <div class="alert alert-warning">Esta votación no tiene calendario definido.</div>
+                        {% endif %}
+                      {% endwith %}
+                    </div>
+
+                    <div class="modal-footer">
+                      <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="4" class="text-muted text-center">No hay votaciones finalizadas.</td>
+            <td colspan="5" class="text-muted text-center">No hay votaciones finalizadas.</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -155,8 +291,18 @@
 
 {% block extra_js %}
 <script>
+function getSeleccion() {
+  // primero activa
+  let sel = document.querySelector('input[name="votacion_id"]:checked');
+  if (sel) return sel;
+
+  // si no, finalizada
+  sel = document.querySelector('input[name="votacion_id_finalizada"]:checked');
+  return sel;
+}
+
 function actualizarVotacionId(formId) {
-  const seleccion = document.querySelector('input[name="votacion_id"]:checked');
+  const seleccion = getSeleccion();
   if (!seleccion) {
     alert("Selecciona una votación primero.");
     return false;
@@ -165,27 +311,21 @@ function actualizarVotacionId(formId) {
   form.querySelector('input[name="votacion_id"]').value = seleccion.value;
   return true;
 }
-function getSeleccionActiva() {
-  return document.querySelector('input[name="votacion_id"]:checked');
-}
+
 function abrirIncidenciaDesdeSeleccion() {
-  const sel = getSeleccionActiva();
+  const sel = getSeleccion();
   if (!sel) {
     alert("Selecciona una votación primero.");
     return;
   }
   document.getElementById('inc_votacion_id').value = sel.value;
 
-  // Abrir el collapse (Bootstrap 5)
   const el = document.getElementById('bloqueIncidencia');
   const c = bootstrap.Collapse.getOrCreateInstance(el);
   c.show();
 
-  // foco al título
   const t = document.getElementById('inc_titulo');
   if (t) t.focus();
 }
-
-// Para las finalizadas, podrías hacer algo similar si quieres reutilizar la mecánica
 </script>
 {% endblock %}

@@ -1,0 +1,267 @@
+@startuml TeleVotApp_ERD
+!pragma layout smetana
+' ==========================================================
+' TeleVotApp - Modelo Entidad-Relación (DER) a partir de models.py
+' ==========================================================
+
+hide methods
+hide stereotypes
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' ----------------------------
+' HACER MAS GRANDE EL DIAGRAMA PESE A QUE SE VA A PARTIR EN VARIOS TROZOS MAS PEQUEÑOS
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam classFontSize 14
+left to right direction
+
+
+' ----------------------------
+' ENTIDADES PRINCIPALES
+' ----------------------------
+
+class Usuario {
+  +DocumentoFiscal : Char(12) <<unique>>
+  +Nombre : Char(100)
+  +Apellidos : Char(200)
+  +email : Email <<unique>>
+  +IdEncriptado : Char(64)
+  +primera_vez : Boolean
+}
+
+class Censo {
+  +IdCenso : PK
+  +NombreCenso : Char(100)
+  +Descripcion : Char(200)
+  +nCensados : Integer
+  +FicheroAsociado : File
+}
+
+class Votacion {
+  +IdVotacion : PK
+  +TituloVotacion : Char(100)
+  +NParticipantes : Integer
+  +Resultado : Char(13)
+  +Estado : Boolean
+  +RecuentoAutorizado : Boolean
+  +BasesVotacion : File
+  +Descripcion : Char(200)
+}
+
+class MesaElectoral {
+  +IdMesa : PK
+  +NombreMesa : Char
+  +Sorteada : Boolean
+  +certificado_visible : Boolean
+}
+
+class Candidatura {
+  +IdCandidatura : PK
+  +NombreCandidatura : Char
+  +TipoCandidatura : {individual|multiple}
+  +Descripcion : Char(200)
+}
+
+class Voto {
+  +IdVoto : PK
+  +hashVoto : Char
+  +fecha_emision : DateTime
+}
+
+class Certificado {
+  +IdCertificado : PK
+  +TipoCertificado : {usuario|mesa}
+  +clave_publica : Text
+  +clave_privada : Text? (nullable)
+  +fecha_creacion : DateTime
+  +revocado : Boolean
+  +motivo_revocacion : Char(200)?
+  +fecha_revocacion : DateTime?
+}
+
+class Noticias {
+  +IdNoticia : PK
+  +TituloNoticia : Char
+  +TextoNoticia : Char
+  +NoticiaApp : Boolean
+}
+
+class Incidencia {
+  +IdIncidencia : PK
+  +TituloIncidencia : Char
+  +IncidenciaSolucionada : Boolean
+  +TextoIncidencia : Char
+  +FicheroIncidencia : File?
+  +RespuestaAdministrador : Text?
+}
+
+class ComunicacionDirector {
+  +id : PK
+  +mensaje : Text
+  +fecha_envio : DateTime
+  +imagen_adjunto : Image?
+}
+
+class CalendarioVotacion {
+  +id : PK
+  +creado_en : DateTime
+  +fecha_no_modificacion : Date
+  +fecha_censos : Date
+  +duracion_censos_dias : PositiveInt
+  +fecha_campaña : Date
+  +duracion_campaña_dias : PositiveInt
+  +fecha_votacion : Date
+  +duracion_votacion_dias : PositiveInt
+  +fecha_recuento : Date
+  +duracion_recuento_dias : PositiveInt
+  +fecha_publicacion_resultados : Date
+}
+
+' ----------------------------
+' TABLAS INTERMEDIAS (N:N)
+' ----------------------------
+
+class CensoUsuario {
+  +id : PK
+  +unique(usuario,censo)
+}
+
+class CensoVotacion {
+  +id : PK
+  +unique(votacion,censo)
+}
+
+class InscritosVotacion {
+  +id : PK
+  +unique(usuario,votacion)
+}
+
+class CandidatosNombrados {
+  +id : PK
+  +unique(votacion,candidatura)
+  +unique(votacion,director) <<si director != null>>
+}
+
+class IntegrantesCandidatura {
+  +id : PK
+  +unique(usuario,candidatura)
+}
+
+class IntegrantesMesa {
+  +id : PK
+  +unique(usuario,mesa)
+}
+
+class RolUsuario {
+  +id : PK
+  +rol : {admin|elector|mesa|director|junta}
+  +unique(usuario,rol)
+}
+
+' ----------------------------
+' RELACIONES (CARDINALIDADES)
+' ----------------------------
+
+' MesaElectoral -> Votacion (FK)
+Votacion "1" <-- "0..*" MesaElectoral : IdVotacion
+
+' CalendarioVotacion -> Votacion (1:1)
+Votacion "1" <-- "0..1" CalendarioVotacion : calendario
+
+' Certificado -> Usuario / MesaElectoral (1:1 opcional)
+Usuario "1" <-- "0..1" Certificado : propietario_usuario
+MesaElectoral "1" <-- "0..1" Certificado : propietario_mesa
+
+' Noticias -> Votacion / Censo (FK opcional)
+Votacion "1" <-- "0..*" Noticias : IdVotacionRelacionada
+Censo   "1" <-- "0..*" Noticias : IdCensoRelacionada
+
+' Voto -> Votacion (FK) y -> Usuario (FK opcional)
+Votacion "1" <-- "0..*" Voto : IdVotacion
+Usuario  "1" <-- "0..*" Voto : idUsuario (nullable)
+
+' Incidencia -> Usuario (obligatoria) y -> Censo/Votacion (opcionales)
+Usuario  "1" <-- "0..*" Incidencia : IdUsuario
+Censo    "1" <-- "0..*" Incidencia : IdCenso (nullable)
+Votacion "1" <-- "0..*" Incidencia : IdVotacion (nullable)
+
+' CensoUsuario (N:N Usuario-Censo)
+Usuario "1" <-- "0..*" CensoUsuario
+Censo   "1" <-- "0..*" CensoUsuario
+
+' CensoVotacion (N:N Censo-Votacion)
+Votacion "1" <-- "0..*" CensoVotacion
+Censo    "1" <-- "0..*" CensoVotacion
+
+' InscritosVotacion (N:N Usuario-Votacion)
+Usuario  "1" <-- "0..*" InscritosVotacion
+Votacion "1" <-- "0..*" InscritosVotacion
+
+' CandidatosNombrados (Votacion-Candidatura + director opcional)
+Votacion     "1" <-- "0..*" CandidatosNombrados
+Candidatura  "1" <-- "0..*" CandidatosNombrados
+Usuario      "1" <-- "0..*" CandidatosNombrados : director (nullable)
+
+' IntegrantesCandidatura (N:N Usuario-Candidatura)
+Usuario     "1" <-- "0..*" IntegrantesCandidatura
+Candidatura "1" <-- "0..*" IntegrantesCandidatura
+
+' IntegrantesMesa (N:N Usuario-MesaElectoral)
+Usuario       "1" <-- "0..*" IntegrantesMesa
+MesaElectoral "1" <-- "0..*" IntegrantesMesa
+
+' RolUsuario (roles por usuario)
+Usuario "1" <-- "0..*" RolUsuario
+
+' ComunicacionDirector -> CandidatosNombrados (campaña) y -> Usuario (director)
+CandidatosNombrados "1" <-- "0..*" ComunicacionDirector : campaña (nullable)
+Usuario             "1" <-- "0..*" ComunicacionDirector : director
+
+' ----------------------------
+' NOTAS / RESTRICCIONES (para el apéndice)
+' ----------------------------
+
+note right of Certificado
+Restricción lógica:
+- Un Certificado pertenece a UN propietario:
+  (Usuario XOR MesaElectoral).
+- En BD se modela con dos OneToOne opcionales,
+  y se garantiza por lógica de aplicación.
+end note
+
+note right of Voto
+Anonimato / desacoplo:
+- El voto se almacena como hashVoto.
+- idUsuario es nullable para permitir
+  romper la relación identidad-voto
+  tras el cierre del proceso.
+end note
+
+note bottom of CandidatosNombrados
+Restricciones de integridad:
+- unique(votacion, candidatura)
+- unique(votacion, director) si director != null
+(garantiza 1 director de campaña por votación)
+end note
+
+note bottom of CensoUsuario
+Tablas puente N:N:
+- Implementan many-to-many explícitos
+- Refuerzan integridad mediante unique_together
+end note
+
+' ----------------------------
+' LEYENDA
+' ----------------------------
+
+legend right
+Leyenda:
+- PK: clave primaria
+- FK: clave ajena
+- 0..1: relación opcional (nullable)
+- 0..*: múltiples registros asociados
+- Tablas puente: relaciones N:N modeladas explícitamente
+endlegend
+
+@enduml

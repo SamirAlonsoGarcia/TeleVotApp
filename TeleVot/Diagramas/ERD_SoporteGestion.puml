@@ -1,0 +1,113 @@
+@startuml
+left to right direction
+
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam classFontSize 14
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+title TeleVotApp - ERD (Soporte y gestión)
+
+hide methods
+hide stereotypes
+
+class Usuario {
+  +DocumentoFiscal : Char(12) <<unique>>
+  +Nombre : Char(100)
+  +Apellidos : Char(200)
+  +email : Email <<unique>>
+  +IdEncriptado : Char(64)
+  +primera_vez : Boolean
+}
+
+class Votacion {
+  +IdVotacion : PK
+  +TituloVotacion : Char(100)
+  +Estado : Boolean
+  +RecuentoAutorizado : Boolean
+}
+
+class Censo {
+  +IdCenso : PK
+  +NombreCenso : Char(100)
+}
+
+class Noticias {
+  +IdNoticia : PK
+  +TituloNoticia : Char
+  +TextoNoticia : Char
+  +NoticiaApp : Boolean
+}
+
+class Incidencia {
+  +IdIncidencia : PK
+  +TituloIncidencia : Char
+  +IncidenciaSolucionada : Boolean
+  +TextoIncidencia : Char
+  +FicheroIncidencia : File?
+  +RespuestaAdministrador : Text?
+}
+
+class InscritosVotacion {
+  +id : PK
+  +unique(usuario,votacion)
+}
+
+class CensoUsuario {
+  +id : PK
+  +unique(usuario,censo)
+}
+
+class Candidatura {
+  +IdCandidatura : PK
+  +NombreCandidatura : Char
+}
+
+class CandidatosNombrados {
+  +id : PK
+  +unique(votacion,candidatura)
+  +unique(votacion,director) <<si director != null>>
+}
+
+class ComunicacionDirector {
+  +id : PK
+  +mensaje : Text
+  +fecha_envio : DateTime
+  +imagen_adjunto : Image?
+}
+
+' Relaciones Noticias (opcionales)
+Votacion "1" <-- "0..*" Noticias : IdVotacionRelacionada
+Censo   "1" <-- "0..*" Noticias : IdCensoRelacionada
+
+' Incidencias
+Usuario  "1" <-- "0..*" Incidencia : IdUsuario
+Censo    "1" <-- "0..*" Incidencia : IdCenso (nullable)
+Votacion "1" <-- "0..*" Incidencia : IdVotacion (nullable)
+
+' Inscripción a votación
+Usuario  "1" <-- "0..*" InscritosVotacion
+Votacion "1" <-- "0..*" InscritosVotacion
+
+' Pertenencia a censo
+Usuario "1" <-- "0..*" CensoUsuario
+Censo   "1" <-- "0..*" CensoUsuario
+
+' Comunicaciones director -> campaña (CandidatosNombrados) y director (Usuario)
+Votacion    "1" <-- "0..*" CandidatosNombrados
+Candidatura "1" <-- "0..*" CandidatosNombrados
+Usuario     "1" <-- "0..*" CandidatosNombrados : director (nullable)
+
+CandidatosNombrados "1" <-- "0..*" ComunicacionDirector : campaña (nullable)
+Usuario             "1" <-- "0..*" ComunicacionDirector : director
+
+legend right
+Leyenda:
+- PK: clave primaria
+- 0..1: relación opcional
+- 0..*: múltiples registros asociados
+- Tablas puente: relaciones N:N explícitas
+endlegend
+
+@enduml

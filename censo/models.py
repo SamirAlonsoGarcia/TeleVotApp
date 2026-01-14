@@ -1,3 +1,4 @@
+from datetime import timedelta
 import django
 from django.db import models
 from django.db.models import Q
@@ -89,8 +90,8 @@ class Noticias(models.Model):
     IdNoticia = models.AutoField(primary_key=True)
     TituloNoticia = models.CharField(default="")
     TextoNoticia = models.CharField(default="")
-    IdVotacionRelacionada = models.IntegerField(default=0)
-    IdCensoRelacionada = models.IntegerField(default=0)
+    IdVotacionRelacionada = models.ForeignKey(Votacion, on_delete=models.CASCADE, null=True, blank=True)
+    IdCensoRelacionada = models.ForeignKey(Censo, on_delete=models.CASCADE, null=True, blank=True)
     NoticiaApp = models.BooleanField(default=False)
     def __str__(self):
         return self.TituloNoticia
@@ -183,3 +184,37 @@ class ComunicacionDirector(models.Model):
 
     def __str__(self):
         return f"Comunicación de {self.director.DocumentoFiscal} - {self.fecha_envio}"
+    
+class CalendarioVotacion(models.Model):
+    votacion = models.OneToOneField('Votacion', on_delete=models.CASCADE, related_name='calendario')
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+    fecha_no_modificacion = models.DateField()
+
+    # Fases (inicio + duración)
+    fecha_censos = models.DateField()
+    duracion_censos_dias = models.PositiveIntegerField(default=1)
+
+    fecha_campaña = models.DateField()
+    duracion_campaña_dias = models.PositiveIntegerField(default=1)
+
+    fecha_votacion = models.DateField()
+    duracion_votacion_dias = models.PositiveIntegerField(default=1)
+
+    fecha_recuento = models.DateField()
+    duracion_recuento_dias = models.PositiveIntegerField(default=1)
+
+    fecha_publicacion_resultados = models.DateField()
+
+    def save(self, *args, **kwargs):
+        # Si no se define explícitamente, por defecto: 1 día después de crearlo
+        if not self.fecha_no_modificacion:
+            self.fecha_no_modificacion = (timezone.now() + timedelta(days=1)).date()
+        super().save(*args, **kwargs)
+
+    def bloqueado(self):
+        #True si ya no se puede modificar
+        return timezone.now().date() > self.fecha_no_modificacion
+
+    def __str__(self):
+        return f"Calendario {self.votacion}"

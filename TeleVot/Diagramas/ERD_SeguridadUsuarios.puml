@@ -1,0 +1,93 @@
+@startuml
+left to right direction
+
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam classFontSize 14
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+title TeleVotApp - ERD (Usuarios, roles y seguridad)
+
+hide methods
+hide stereotypes
+
+class Usuario {
+  +DocumentoFiscal : Char(12) <<unique>>
+  +Nombre : Char(100)
+  +Apellidos : Char(200)
+  +email : Email <<unique>>
+  +IdEncriptado : Char(64)
+  +primera_vez : Boolean
+}
+
+class RolUsuario {
+  +id : PK
+  +rol : {admin|elector|mesa|director|junta}
+  +unique(usuario,rol)
+}
+
+class Certificado {
+  +IdCertificado : PK
+  +TipoCertificado : {usuario|mesa}
+  +clave_publica : Text
+  +clave_privada : Text? (nullable)
+  +fecha_creacion : DateTime
+  +revocado : Boolean
+  +motivo_revocacion : Char(200)?
+  +fecha_revocacion : DateTime?
+}
+
+class MesaElectoral {
+  +IdMesa : PK
+  +NombreMesa : Char
+  +Sorteada : Boolean
+  +certificado_visible : Boolean
+}
+
+class IntegrantesMesa {
+  +id : PK
+  +unique(usuario,mesa)
+}
+
+class Candidatura {
+  +IdCandidatura : PK
+  +NombreCandidatura : Char
+  +TipoCandidatura : {individual|multiple}
+  +Descripcion : Char(200)
+}
+
+class IntegrantesCandidatura {
+  +id : PK
+  +unique(usuario,candidatura)
+}
+
+' Relaciones
+Usuario "1" <-- "0..*" RolUsuario
+
+Usuario      "1" <-- "0..*" IntegrantesMesa
+MesaElectoral "1" <-- "0..*" IntegrantesMesa
+
+Usuario     "1" <-- "0..*" IntegrantesCandidatura
+Candidatura "1" <-- "0..*" IntegrantesCandidatura
+
+' Certificados (1:1 opcional con Usuario o MesaElectoral)
+Usuario      "1" <-- "0..1" Certificado : propietario_usuario
+MesaElectoral "1" <-- "0..1" Certificado : propietario_mesa
+
+note right of Certificado
+Restricción lógica:
+- Un Certificado pertenece a UN propietario:
+  (Usuario XOR MesaElectoral).
+- En BD se modela con dos OneToOne opcionales,
+  y se garantiza por lógica de aplicación.
+end note
+
+legend right
+Leyenda:
+- PK: clave primaria
+- 0..1: relación opcional (nullable)
+- 0..*: múltiples registros asociados
+endlegend
+
+@enduml

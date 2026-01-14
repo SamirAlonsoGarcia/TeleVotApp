@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.http import HttpResponseRedirect, FileResponse, JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import authenticate, login, logout
@@ -29,8 +30,8 @@ import openpyxl
 from functools import wraps
 
 from urllib3 import request
-from .models import Noticias, RolUsuario, Usuario, Censo, MesaElectoral, Votacion, Voto, Candidatura, Incidencia, CensoUsuario, CensoVotacion, CandidatosNombrados, InscritosVotacion, IntegrantesCandidatura, IntegrantesMesa, Certificado, ComunicacionDirector
-from .forms import JuntaNoticiaForm, LoginForm, MesaNoticiaForm, NuevoUsuarioForm, NuevaCandidaturaForm, NuevaVotacionForm, AdminCrearUsuarioForm, MesaNoticiaForm, NuevaIncidenciaForm, JuntaIncidenciaForm
+from .models import CalendarioVotacion, Noticias, RolUsuario, Usuario, Censo, MesaElectoral, Votacion, Voto, Candidatura, Incidencia, CensoUsuario, CensoVotacion, CandidatosNombrados, InscritosVotacion, IntegrantesCandidatura, IntegrantesMesa, Certificado, ComunicacionDirector
+from .forms import JuntaNoticiaForm, LoginForm, MesaNoticiaForm, NuevoUsuarioForm, NuevaCandidaturaForm, NuevaVotacionForm, AdminCrearUsuarioForm, MesaNoticiaForm, NuevaIncidenciaForm, JuntaIncidenciaForm, CalendarioVotacionForm
 
 #getobject_or_404 funcion que maneja la salida de una operacion con o sin parametros y que devuelve una pagina de error si no se puede procesar.
 
@@ -169,6 +170,18 @@ def Inicio_mesa(request):
     mesa = mesa_rel.mesa
     votacion = mesa.IdVotacion
 
+    calendario = getattr(votacion, "calendario", None)
+    fase = None
+    rangos = None
+    if calendario:
+        rangos = calendario_rangos(calendario)
+        fase = fase_actual(calendario)
+        cal_info = {
+            "cal": calendario,
+            "fase": fase,           # string o None
+            "rangos": rangos,       # dict {fase: (ini, fin)}
+        }
+
     # buscamos el certificado de la mesa si estuviera ya creado
     certificado_mesa = Certificado.objects.filter(propietario_mesa=mesa).first()
 
@@ -177,7 +190,7 @@ def Inicio_mesa(request):
     incidencias_votacion = Incidencia.objects.filter(IdVotacion=votacion).count()
     incidencias_pendientes = Incidencia.objects.filter(IdVotacion=votacion,IncidenciaSolucionada=False).count()
 
-    return render(request, 'roles/mesa/Inicio_mesa.html', {'mesa': mesa,'votacion': votacion,'certificado_mesa': certificado_mesa,'total_votos': total_votos,'incidencias_votacion': incidencias_votacion,'incidencias_pendientes': incidencias_pendientes,})
+    return render(request, 'roles/mesa/Inicio_mesa.html', {'mesa': mesa,'votacion': votacion,'certificado_mesa': certificado_mesa,'total_votos': total_votos,'incidencias_votacion': incidencias_votacion,'incidencias_pendientes': incidencias_pendientes,"calendario": calendario, "cal_info": cal_info,})
 
 @role_required('elector')
 def Inicio_votante(request):
@@ -215,7 +228,18 @@ def Inicio_director(request):
     votacion = cand_nombrados.votacion
     candidatura = cand_nombrados.candidatura
 
+    calendario = getattr(votacion, "calendario", None)
+    fase= fase_actual(calendario) if calendario else None
+
     if request.method == "POST":
+        if not calendario:
+            messages.error(request, 'La votación no tiene calendario asignado. No se puede enviar comunicaciones por el momento.')
+            return redirect('Inicio_director')
+
+        if fase != 'campaña':
+            messages.warning(request, 'Solo se pueden enviar comunicaciones durante la fase de campaña.')
+            return redirect('Inicio_director')
+
         if envios_hoy >= 3:
             messages.warning(request, 'Has alcanzado el límite de 3 comunicaciones diarias.')
             return redirect('Inicio_director')
@@ -724,22 +748,47 @@ def inscribir_usuarios_censo(request):
     return redirect('Junta_censos')
 
 @role_required('junta')
-def junta_votaciones_gestionar (request):
-    
-    #Carga la pantalla de gestión de una votación concreta para la Junta Electoral.
-    #Espera un 'votacion_id' vía POST (botón desde listado) o vía GET (?votacion_id=...).
+def junta_votaciones_gestionar(request):
 
     votacion_id = request.POST.get('votacion_id') or request.GET.get('votacion_id')
-
     if not votacion_id:
         messages.error(request, "No has seleccionado ninguna votación.")
         return redirect('Junta_votaciones_listado')
 
-    # Si no existe, 404 controlado
     votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
 
+    calendario = CalendarioVotacion.objects.filter(votacion=votacion).first()
+
+    calendario_bloqueado = False
+    if calendario and timezone.now().date() > calendario.fecha_no_modificacion:
+        calendario_bloqueado = True
+
+    if request.method == "POST" and request.POST.get("accion") == "guardar_calendario":
+
+        if calendario_bloqueado:
+            messages.error(request, "El calendario ya está bloqueado y no puede modificarse.")
+            return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
+
+        form_calendario = CalendarioVotacionForm(request.POST, instance=calendario)
+
+        if form_calendario.is_valid():
+            cal = form_calendario.save(commit=False)
+            cal.votacion = votacion
+
+            # Fecha límite de modificación: por defecto mañana
+            if not cal.fecha_no_modificacion:
+                cal.fecha_no_modificacion = timezone.now().date() + timezone.timedelta(days=1)
+
+            cal.save()
+            messages.success(request, "Calendario de la votación guardado correctamente.")
+            return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
+        else:
+            messages.error(request, "Hay errores en el calendario. Revisa los datos.")
+    else:
+        form_calendario = CalendarioVotacionForm(instance=calendario)
+
     censos = Censo.objects.all()
-    form_candidatura = NuevaCandidaturaForm()
+    form_candidatura = NuevaCandidaturaForm(votacion=votacion)
     mesa_ya_sorteada = MesaElectoral.objects.filter(IdVotacion=votacion).exists()
 
     candidaturas_votacion = (CandidatosNombrados.objects.filter(votacion=votacion).select_related('candidatura').values_list('candidatura', flat=True).distinct())
@@ -753,7 +802,7 @@ def junta_votaciones_gestionar (request):
             i.usuario.DocumentoFiscal for i in integrantes
         ]
 
-    return render(request,'roles/junta/ManejarVotacion.html',{'votacion': votacion,'censos': censos,'form1': form_candidatura,'mesa_ya_sorteada': mesa_ya_sorteada,'candidaturas': candidaturas,'integrantes': integrantes_asociados,})
+    return render(request,'roles/junta/ManejarVotacion.html',{'votacion': votacion,'censos': censos,'form1': form_candidatura,'mesa_ya_sorteada': mesa_ya_sorteada,'candidaturas': candidaturas,'integrantes': integrantes_asociados,'calendario': calendario,'form_calendario': form_calendario,'calendario_bloqueado': calendario_bloqueado,})
 
 @role_required('junta')
 def junta_vot_eliminar_candidatura(request):
@@ -1032,6 +1081,29 @@ def mesa_recuento(request):
 
     return render(request, 'roles/mesa/RecuentoVotacion.html', {'mesa': mesa,'votacion': votacion,'certificados': certificados,'clave_desbloqueada':clave_desbloqueada,'resultados': resultados,})
 
+def recuentoVotacion(mesa, votacion, clave_privada):
+    # Realiza el recuento de votos para la mesa y votación dada, usando la clave privada proporcionada.
+    # Verifica que el usuario es miembro de la mesa para esa votación
+    es_miembro_mesa = MesaElectoral.objects.filter(votacion=votacion, usuario=request.user).exists()
+
+
+    if not es_miembro_mesa:
+        return HttpResponseForbidden("No tienes permiso para autorizar el recuento.")
+
+    # Cambiar el estado de la votación
+    if votacion.estado == False:
+        votacion.RecuentoAutorizado = True
+        votacion.save()
+        messages.success(request, "Se ha autorizado el recuento.")
+        certificado_mesa = Certificado.objects.filter(propietario_mesa=mesa, TipoCertificado='mesa', revocado=False).first()
+        #aqui falta funcionalidad
+        #obtener todos los votos asociados a la votacion
+        votos = Voto.objects.filter(IdVotacion=votacion)
+        return render(request, 'RecuentoVotacion.Html', {'certificados':certificado_mesa, 'votacion':votacion})
+    else:
+        messages.warning(request, "La votación aún no está cerrada o ya se autorizó el recuento.")
+        return redirect(request,'votaciones')
+
 @role_required('mesa')
 def mesa_noticias(request):
     #Obtener mesa y votación del usuario de mesa
@@ -1170,7 +1242,21 @@ def Votacion_view(request):
 
     votaciones_finalizadas = Votacion.objects.filter(IdVotacion__in=inscritas,Estado=False)
 
-    return render(request,'roles/elector/Votaciones.html',{'votaciones_activas': votaciones_activas,'votaciones_finalizadas': votaciones_finalizadas,})
+    todas = list(votaciones_activas) + list(votaciones_finalizadas)
+
+    # Se buscan todos los calendarios de votación asociados a las votaciones encontradas
+    cal_map = {}
+    if todas:
+        cal_qs = CalendarioVotacion.objects.filter(votacion__in=todas).select_related('votacion')
+        hoy = timezone.now().date()
+        for cal in cal_qs:
+            cal_map[cal.votacion.IdVotacion] = {
+                "cal": cal,
+                "fase": fase_actual(cal, hoy),
+                "rangos": calendario_rangos(cal),
+            }
+
+    return render(request,'roles/elector/Votaciones.html',{'votaciones_activas': votaciones_activas,'votaciones_finalizadas': votaciones_finalizadas,"cal_map": cal_map,})
 
 @role_required('elector')
 def MandarIncidenciaVotacion(request):
@@ -1276,7 +1362,7 @@ def crear_certificado_personal(request):
     else:
         messages.error(request,f"El usuario: {userLogged.DocumentoFiscal}, ya tiene un certificado asignado. No es posible volver a crearlo")
 
-    return redirect('certificados')
+    return redirect('Elector_certificados')
 
 role_required('elector')
 def certificar_voto(request):
@@ -1305,7 +1391,7 @@ def certificar_voto(request):
             messages.success(request,"SU VOTO SE EMITIÓ CORRECTAMENTE")
         else:
             messages.success(request,"YA HAS VOTADO EN LA VOTACION ACTUAL, NO ES POSSIBLE VOLVER A VOTAR")
-    return redirect('votaciones')
+    return redirect('Elector_votaciones')
 
 
 role_required("elector")
@@ -1515,6 +1601,30 @@ def obtenerCertificados(usuario, votacion_id):
 def logout(request):
     logout(request)
     return redirect('login')
+
+def calendario_rangos(cal):
+    return {
+        "censos": (cal.fecha_censos, cal.fecha_censos + timedelta(days=cal.duracion_censos_dias - 1)),
+        "campaña": (cal.fecha_campaña, cal.fecha_campaña + timedelta(days=cal.duracion_campaña_dias - 1)),
+        "votacion": (cal.fecha_votacion, cal.fecha_votacion + timedelta(days=cal.duracion_votacion_dias - 1)),
+        "recuento": (cal.fecha_recuento, cal.fecha_recuento + timedelta(days=cal.duracion_recuento_dias - 1)),
+        "resultados": (cal.fecha_publicacion_resultados, cal.fecha_publicacion_resultados),
+    }
+
+def fase_actual(cal, hoy=None):
+    if not cal:
+        return None
+    hoy = hoy or timezone.now().date()
+    rangos = calendario_rangos(cal)
+    for fase, (ini, fin) in rangos.items():
+        if ini <= hoy <= fin:
+            return fase
+    return None
+
+def rango_fase(inicio, duracion_dias):
+    # duracion 1 => inicio == fin
+    fin = inicio + timedelta(days=max(duracion_dias, 1) - 1)
+    return inicio, fin
 
     ######## ANTIGUO ##############
     

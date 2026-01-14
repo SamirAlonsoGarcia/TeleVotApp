@@ -1,0 +1,43 @@
+@startuml
+title TeleVotApp - Flujo de autenticación e identificación del elector
+
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam linetype ortho
+
+start
+
+:Elector accede a la aplicación;
+
+if (¿Votación activa según calendario?) then (Sí)
+  :Iniciar proceso de autenticación;
+else (No)
+  :Acceso denegado;
+  stop
+endif
+
+if (¿Autenticación válida?) then (Sí)
+  :Identificar usuario;
+else (No)
+  :Error de autenticación;
+  stop
+endif
+
+if (¿Pertenece a censo asociado?) then (Sí)
+  :Verificar inscripción en la votación;
+else (No)
+  :Acceso denegado;
+  stop
+endif
+
+if (¿Ya ha votado?) then (Sí)
+  :Voto duplicado bloqueado;
+  stop
+else (No)
+  :Habilitar interfaz de votación;
+endif
+
+:Elector autorizado para votar;
+stop
+
+@enduml

@@ -10,7 +10,7 @@
 
 <div class="row g-4 mt-2">
   <!-- Info mesa/votación -->
-  <div class="col-md-6">
+  <div class="col-md-5">
     <div class="card shadow-sm">
       <div class="card-header text-white" style="background-color:#103957;">
         <h5 class="mb-0">Información de la mesa</h5>
@@ -40,6 +40,74 @@
         <p class="mb-1"><strong>Total de votos registrados:</strong> {{ total_votos }}</p>
         <p class="mb-1"><strong>Incidencias totales:</strong> {{ incidencias_votacion }}</p>
         <p class="mb-1"><strong>Incidencias pendientes:</strong> {{ incidencias_pendientes }}</p>
+      </div>
+    </div>
+  </div>
+
+<!-- Calendario -->
+  <div class="col-md-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Calendario</h5>
+      </div>
+      <div class="card-body">
+        {% if cal_info %}
+          <button type="button" class="btn btn-outline-secondary btn-sm"
+                  data-bs-toggle="modal" data-bs-target="#calModalMesa">
+            Ver calendario
+          </button>
+
+          <!-- MODAL -->
+          <div class="modal fade" id="calModalMesa" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+              <div class="modal-content">
+
+                <div class="modal-header">
+                  <h5 class="modal-title">Calendario · {{ votacion.TituloVotacion }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                  <p><strong>Fase actual:</strong>
+                    {% if cal_info.fase %}{{ cal_info.fase|capfirst }}{% else %}No activa{% endif %}
+                  </p>
+
+                  <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Fase</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for k, r in cal_info.rangos.items %}
+                        <tr {% if cal_info.fase == k %}class="table-warning"{% endif %}>
+                          <td>{{ k|capfirst }}</td>
+                          <td>{{ r.0 }}</td>
+                          <td>{{ r.1 }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+
+                  <p class="text-muted small mb-0">
+                    Calendario {% if cal_info.cal.bloqueado %}bloqueado{% else %}editable{% endif %}
+                    · No modificación desde {{ cal_info.cal.fecha_no_modificacion }}
+                  </p>
+                </div>
+
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        {% else %}
+          <p class="mb-1 text-muted">No hay calendario asignado.</p>
+        {% endif %}
       </div>
     </div>
   </div>

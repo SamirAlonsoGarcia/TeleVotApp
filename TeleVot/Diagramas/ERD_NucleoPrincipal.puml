@@ -1,0 +1,108 @@
+@startuml
+left to right direction
+
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam classFontSize 14
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+title TeleVotApp - ERD (Núcleo del proceso electoral)
+
+hide methods
+hide stereotypes
+
+class Votacion {
+  +IdVotacion : PK
+  +TituloVotacion : Char(100)
+  +NParticipantes : Integer
+  +Resultado : Char(13)
+  +Estado : Boolean
+  +RecuentoAutorizado : Boolean
+  +BasesVotacion : File
+  +Descripcion : Char(200)
+}
+
+class Censo {
+  +IdCenso : PK
+  +NombreCenso : Char(100)
+  +Descripcion : Char(200)
+  +nCensados : Integer
+  +FicheroAsociado : File
+}
+
+class MesaElectoral {
+  +IdMesa : PK
+  +NombreMesa : Char
+  +Sorteada : Boolean
+  +certificado_visible : Boolean
+}
+
+class Candidatura {
+  +IdCandidatura : PK
+  +NombreCandidatura : Char
+  +TipoCandidatura : {individual|multiple}
+  +Descripcion : Char(200)
+}
+
+class Voto {
+  +IdVoto : PK
+  +hashVoto : Char
+  +fecha_emision : DateTime
+}
+
+class CalendarioVotacion {
+  +id : PK
+  +creado_en : DateTime
+  +fecha_no_modificacion : Date
+  +fecha_censos : Date
+  +duracion_censos_dias : PositiveInt
+  +fecha_campaña : Date
+  +duracion_campaña_dias : PositiveInt
+  +fecha_votacion : Date
+  +duracion_votacion_dias : PositiveInt
+  +fecha_recuento : Date
+  +duracion_recuento_dias : PositiveInt
+  +fecha_publicacion_resultados : Date
+}
+
+class CensoVotacion {
+  +id : PK
+  +unique(votacion,censo)
+}
+
+class CandidatosNombrados {
+  +id : PK
+  +unique(votacion,candidatura)
+  +unique(votacion,director) <<si director != null>>
+}
+
+' Relaciones principales
+Votacion "1" <-- "0..*" MesaElectoral : IdVotacion
+Votacion "1" <-- "0..1" CalendarioVotacion : calendario
+
+Votacion "1" <-- "0..*" Voto : IdVotacion
+
+' Relaciones N:N del núcleo
+Votacion "1" <-- "0..*" CensoVotacion
+Censo    "1" <-- "0..*" CensoVotacion
+
+Votacion    "1" <-- "0..*" CandidatosNombrados
+Candidatura "1" <-- "0..*" CandidatosNombrados
+
+note bottom of CandidatosNombrados
+Restricciones de integridad:
+- unique(votacion, candidatura)
+- unique(votacion, director) si director != null
+(1 director de campaña por votación)
+end note
+
+legend right
+Leyenda:
+- PK: clave primaria
+- 0..1: relación opcional
+- 0..*: múltiples registros asociados
+- Tablas puente: relaciones N:N explícitas
+endlegend
+
+@enduml
