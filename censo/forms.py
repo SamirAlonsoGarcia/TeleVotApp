@@ -281,3 +281,20 @@ class CalendarioVotacionForm(forms.ModelForm):
         check_fecha_consecutiva(fin_votacion, fr, "Recuento")
         check_fecha_consecutiva(fin_recuento,fpub,"Publicacion de resultados")
         return cleaned
+
+class AsignarDirectorCampañaForm(forms.Form):
+    candidatura = forms.ModelChoiceField(
+        queryset=Candidatura.objects.none(),
+        label="Candidatura",
+        widget=forms.Select(attrs={"class": "form-select"})
+    )
+    director = forms.ModelChoiceField(
+        queryset=Usuario.objects.all().order_by("DocumentoFiscal"),
+        label="Usuario (director de campaña)",
+        widget=forms.Select(attrs={"class": "form-select"})
+    )
+    def __init__(self, *args, **kwargs):
+        candidaturas_qs = kwargs.pop("candidaturas_qs", None)
+        super().__init__(*args, **kwargs)
+        if candidaturas_qs is not None:
+            self.fields["candidatura"].queryset = candidaturas_qs

@@ -27,6 +27,7 @@ urlpatterns=[
     path('junta/votaciones/notificar/', views.junta_vot_notificar_usuarios, name='Junta_vot_notificar'),
     path('junta/votaciones/sortear-mesa/', views.junta_vot_sortear_mesa, name='Junta_vot_sortear_mesa'),
     path('junta/votaciones/eliminar-candidatura/', views.junta_vot_eliminar_candidatura, name='Junta_vot_eliminar_candidatura'),
+    path('junta/votaciones/asignar-director/', views.Junta_vot_asignar_director, name='Junta_vot_asignar_director'),
     #incidencias y noticias
     path('junta/incidencias/', views.junta_incidencias, name='Junta_incidencias'),
     path('junta/noticias/', views.junta_noticias, name='Junta_noticias'),

@@ -1,3 +1,4 @@
+from ast import If
 from datetime import timedelta
 from django.http import HttpResponseRedirect, FileResponse, JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,7 +32,7 @@ from functools import wraps
 
 from urllib3 import request
 from .models import CalendarioVotacion, Noticias, RolUsuario, Usuario, Censo, MesaElectoral, Votacion, Voto, Candidatura, Incidencia, CensoUsuario, CensoVotacion, CandidatosNombrados, InscritosVotacion, IntegrantesCandidatura, IntegrantesMesa, Certificado, ComunicacionDirector
-from .forms import JuntaNoticiaForm, LoginForm, MesaNoticiaForm, NuevoUsuarioForm, NuevaCandidaturaForm, NuevaVotacionForm, AdminCrearUsuarioForm, MesaNoticiaForm, NuevaIncidenciaForm, JuntaIncidenciaForm, CalendarioVotacionForm
+from .forms import JuntaNoticiaForm, LoginForm, MesaNoticiaForm, NuevoUsuarioForm, NuevaCandidaturaForm, NuevaVotacionForm, AdminCrearUsuarioForm, MesaNoticiaForm, NuevaIncidenciaForm, JuntaIncidenciaForm, CalendarioVotacionForm, AsignarDirectorCampañaForm
 
 #getobject_or_404 funcion que maneja la salida de una operacion con o sin parametros y que devuelve una pagina de error si no se puede procesar.
 
@@ -519,9 +520,9 @@ def junta_vot_asignar_censo(request):
 @role_required('junta')
 def junta_vot_crear_candidatura(request):
     if request.method == "POST":
-        form = NuevaCandidaturaForm(request.POST)
         votacion_id = request.POST.get("votacion_id")
         votacion = Votacion.objects.get(IdVotacion=votacion_id)
+        form = NuevaCandidaturaForm(request.POST, votacion=votacion)
 
         if form.is_valid():
             usuarios = list(form.cleaned_data['usuarios'])
@@ -544,8 +545,15 @@ def junta_vot_crear_candidatura(request):
             for u in usuarios:
                 IntegrantesCandidatura.objects.create(candidatura=candidatura, usuario=u)
 
+            try:
+                obj = CandidatosNombrados.objects.create(votacion=votacion, candidatura=candidatura)
+                print("CREADO CandidatosNombrados:", obj.id)
+            except Exception as e:
+                print("ERROR creando CandidatosNombrados:", repr(e))
+                raise
+
             # Vincular candidatura a votación (CandidatosNombrados)
-            CandidatosNombrados.objects.get_or_create(votacion=votacion, candidatura=candidatura)
+            #CandidatosNombrados.objects.create(votacion=votacion, candidatura=candidatura)
 
             messages.success(request, "Candidatura creada y asociada.")
         return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
@@ -665,6 +673,45 @@ def junta_vot_sortear_mesa(request):
         return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
 
     return redirect('Inicio_junta')
+
+@role_required('junta')
+def Junta_vot_asignar_director(request):
+    if request.method != "POST":
+        return redirect('Junta_votaciones_listado')
+        
+    votacion_id = request.POST.get("votacion_id")
+    if not votacion_id:
+        messages.error(request, "Falta id_votacion.")
+        return redirect('Junta_votaciones_listado')
+    votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
+    candidaturas_id = CandidatosNombrados.objects.filter(votacion=votacion).values_list('candidatura', flat=True).distinct()
+    candidaturas_obj = Candidatura.objects.filter(IdCandidatura__in=candidaturas_id).order_by('NombreCandidatura')
+
+    form=AsignarDirectorCampañaForm(request.POST, candidaturas_qs=candidaturas_obj)
+    if not form.is_valid():
+        messages.error(request, "Revisa los datos del formulario (candidatura/usuario).")
+        return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
+    
+    candidatura = form.cleaned_data['candidatura']
+    director = form.cleaned_data['director']
+
+    candidato_nombrado = get_object_or_404(CandidatosNombrados, votacion=votacion, candidatura=candidatura)
+    candidato_nombrado.director = director
+    ya_es_director = CandidatosNombrados.objects.filter(votacion=votacion,director=director).exclude(pk=candidato_nombrado.pk).exists()
+
+    if ya_es_director:
+        messages.error(
+            request,
+            f"El usuario {director.DocumentoFiscal} ya es director de otra candidatura en esta votación."
+        )
+        return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
+
+    candidato_nombrado.save()
+
+    RolUsuario.objects.get_or_create(usuario=director, rol='director')
+    messages.success(request, f"Director asignado: {director.DocumentoFiscal} → {candidatura.NombreCandidatura}")
+
+    return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
 
 @role_required('junta')
 def Censos_junta(request):
@@ -801,8 +848,10 @@ def junta_votaciones_gestionar(request):
         integrantes_asociados[cand.IdCandidatura] = [
             i.usuario.DocumentoFiscal for i in integrantes
         ]
+    
+    form_director = AsignarDirectorCampañaForm(candidaturas_qs=candidaturas)
 
-    return render(request,'roles/junta/ManejarVotacion.html',{'votacion': votacion,'censos': censos,'form1': form_candidatura,'mesa_ya_sorteada': mesa_ya_sorteada,'candidaturas': candidaturas,'integrantes': integrantes_asociados,'calendario': calendario,'form_calendario': form_calendario,'calendario_bloqueado': calendario_bloqueado,})
+    return render(request,'roles/junta/ManejarVotacion.html',{'votacion': votacion,'censos': censos,'form1': form_candidatura,'mesa_ya_sorteada': mesa_ya_sorteada,'candidaturas': candidaturas,'integrantes': integrantes_asociados,'calendario': calendario,'form_calendario': form_calendario,'calendario_bloqueado': calendario_bloqueado, 'form_director': form_director,})
 
 @role_required('junta')
 def junta_vot_eliminar_candidatura(request):

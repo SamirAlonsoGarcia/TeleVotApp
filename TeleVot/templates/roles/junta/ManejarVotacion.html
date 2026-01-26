@@ -185,24 +185,6 @@
         </div>
       </div>
       <br>
-      <div class="card">
-        <div class="card-header text-white" style="background-color:#103957;">
-          <h4 class="mb-0">Notificar usuarios</h4>
-        </div>
-        <div class="card-body">
-          <form method="post" enctype="multipart/form-data" action="{% url 'Junta_vot_inscribir_usuarios' %}">
-            {% csrf_token %}
-            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
-            <button type="submit" class="btn btn-secondary mb-3 w-100">Asignar usuarios</button>
-          </form>
-
-          <form method="post" enctype="multipart/form-data" action="{% url 'Junta_vot_notificar' %}">
-            {% csrf_token %}
-            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
-            <button type="submit" class="btn btn-warning w-100">Notificar inscripción</button>
-          </form>
-        </div>
-      </div>
     </div>
     <div class="col-12 col-lg-6">
       <div class="card h-100">
@@ -259,6 +241,30 @@
               </table>
             </div>
             <button type="submit" class="btn btn-danger mt-2">Eliminar candidatura</button>
+          </form>
+          </br>
+          <hr>
+          <h5 class="mb-2">Asignar director de campaña</h5>
+
+          <form method="post" action="{% url 'Junta_vot_asignar_director' %}" class="row g-2 align-items-end">
+            {% csrf_token %}
+            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+
+            <div class="col-12 col-md-6">
+              <label class="form-label mb-1">Candidatura</label>
+              {{ form_director.candidatura }}
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label mb-1">Usuario</label>
+              {{ form_director.director }}
+            </div>
+
+            <div class="col-12">
+              <button type="submit" class="btn btn-info w-100">
+                Asignar director
+              </button>
+            </div>
           </form>
         </div>
       </div>
