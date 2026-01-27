@@ -1,0 +1,907 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:z="http://www.zotero.org/namespaces/export#"
+ xmlns:bib="http://purl.org/net/biblio#"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:vcard="http://nwalsh.com/rdf/vCard#"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:prism="http://prismstandard.org/namespaces/1.2/basic/">
+   <bib:Book rdf:about="#item_3"><z:itemType>book</z:itemType></bib:Book>
+    <bib:BookSection rdf:about="#item_9">
+        <z:itemType>bookSection</z:itemType>
+        <dcterms:isPartOf>
+           <bib:Book></bib:Book>
+        </dcterms:isPartOf>
+    </bib:BookSection>
+    <bib:BookSection rdf:about="#item_10">
+        <z:itemType>bookSection</z:itemType>
+        <dcterms:isPartOf>
+           <bib:Book><dc:title>Teoría de la democracia</dc:title></bib:Book>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>Madrid</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+                <foaf:name>Alianza Editorial</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sartori</foaf:surname>
+                        <foaf:givenName>Giovanni</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Teoría de la democracia</dc:title>
+        <prism:edition>1987</prism:edition>
+    </bib:BookSection>
+    <bib:Book rdf:about="#item_11">
+        <z:itemType>book</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>Madrid</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+                <foaf:name>Alianza editorial</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Sartori</foaf:surname>
+                        <foaf:givenName>Giovanni</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Teoría de la democracia</dc:title>
+        <dc:date>1987</dc:date>
+    </bib:Book>
+    <bib:Book rdf:about="#item_12">
+        <z:itemType>book</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>Madrid</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+                <foaf:name>Fondo de Cultura Económica</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bobbio</foaf:surname>
+                        <foaf:givenName>Norberto</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>El futuro de la democracia</dc:title>
+        <dc:date>1986</dc:date>
+    </bib:Book>
+    <bib:Book rdf:about="#item_13">
+        <z:itemType>book</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>Madrid</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+                <foaf:name>Taurus</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Dahl</foaf:surname>
+                        <foaf:givenName>Robert A.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>la democracia: una guía para los ciudadanos</dc:title>
+        <dc:date>1999</dc:date>
+    </bib:Book>
+    <bib:Article rdf:about="#item_14">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+               <dc:title>Cambridge University Press</dc:title>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Norris</foaf:surname>
+                        <foaf:givenName>Pippa</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Electoral Engineering: Voting Rules and political Behaivor</dc:title>
+        <dc:date>2004</dc:date>
+        <z:language>Inglés</z:language>
+    </bib:Article>
+    <bib:Report rdf:about="https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-AD(2002)023rev-e">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Council of Europe / Venice Commission</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Code of Good Practice in Electoral Matters</dc:title>
+        <dc:date>2002</dc:date>
+        <z:language>Inglés</z:language>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-AD(2002)023rev-e</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <bib:Report rdf:about="https://www.venice.coe.int/webforms/documents/?pdf=CDL-AD(2020)031-e">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Venice Commission</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Code of Good Practice on Referendums</dc:title>
+        <dc:date>2020</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.venice.coe.int/webforms/documents/?pdf=CDL-AD(2020)031-e</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <rdf:Description rdf:about="https://www.eeas.europa.eu/eu-election-observation-missions_en">
+        <z:itemType>document</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>European Union</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>EU Election Observation Handbook</dc:title>
+        <dc:date>2016</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.eeas.europa.eu/eu-election-observation-missions_en</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </rdf:Description>
+    <bib:Document rdf:about="https://vote.heliosvoting.org/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Adida</foaf:surname>
+                        <foaf:givenName>Ben et al.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Helios Voting System</dc:title>
+        <dcterms:abstract>Sistema de voto verificable E2E</dcterms:abstract>
+        <dc:date>2024</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://vote.heliosvoting.org/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Article rdf:about="#item_19">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+               <dc:title>USENIX Security Symposium</dc:title>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Adida</foaf:surname>
+                        <foaf:givenName>Ben et al.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Helios: Web-based Open-Audit Voting</dc:title>
+        <dc:date>2008</dc:date>
+    </bib:Article>
+    <rdf:Description rdf:about="#item_20">
+        <z:itemType>standard</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                   <foaf:Person><foaf:surname>ITU-T</foaf:surname></foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>X.509 Public Key Infrastructure</dc:title>
+        <dc:date>2019</dc:date>
+    </rdf:Description>
+    <bib:Legislation rdf:about="#item_21">
+       <z:itemType>statute</z:itemType>
+    </bib:Legislation>
+    <bib:Document rdf:about="https://www.sede.fnmt.gob.es/certificados">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>FNMT-RCM</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Certificados electrónicos</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.sede.fnmt.gob.es/certificados</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://www.python.org/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Python Software Foundation</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Python Documentation</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.python.org/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://docs.djangoproject.com/en/6.0/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Django Software Foundation</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Django Documentation</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://docs.djangoproject.com/en/6.0/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://www.postgresql.org/docs/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>PostgreSQL Global Development Group</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>PostgreSQL Documentation</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.postgresql.org/docs/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://pypi.org/project/cryptography/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Python Cryptography Authority</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>cryptography library</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://pypi.org/project/cryptography/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://openpyxl.readthedocs.io/en/stable/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>OpenPyXL Developers</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>openpyxl Documentation</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://openpyxl.readthedocs.io/en/stable/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://plantuml.com/es/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>PlantUML Team</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>PlantUML</dc:title>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://plantuml.com/es/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://graphviz.org/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Graphviz Team</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Graphviz</dc:title>
+        <dc:identifier>
+           <dcterms:URI><rdf:value>https://graphviz.org/</rdf:value></dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Data rdf:about="https://chatgpt.com/">
+        <z:itemType>computerProgram</z:itemType>
+        <z:programmers>
+            <rdf:Seq>
+                <rdf:li>
+                   <foaf:Person><foaf:surname>OpenAI</foaf:surname></foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </z:programmers>
+        <dcterms:isReferencedBy rdf:resource="#item_31"/>
+        <dc:title>ChatGPT</dc:title>
+        <dc:date>2023-2026</dc:date>
+        <dc:identifier>
+           <dcterms:URI><rdf:value>https://chatgpt.com/</rdf:value></dcterms:URI>
+        </dc:identifier>
+    </bib:Data>
+    <bib:Memo rdf:about="#item_31">
+        <rdf:value>&lt;div data-schema-version=&quot;8&quot;&gt;&lt;p&gt;Herramienta de apoyo a la redacción y estructuración del documento&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;/div&gt;</rdf:value>
+    </bib:Memo>
+    <bib:Book rdf:about="#item_32">
+        <z:itemType>book</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Aristoteles</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Política</dc:title>
+    </bib:Book>
+    <bib:Book rdf:about="#item_33">
+        <z:itemType>book</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Ciceron</foaf:surname>
+                        <foaf:givenName>Marco Tulio</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>De re publica</dc:title>
+    </bib:Book>
+    <bib:Book rdf:about="#item_34">
+        <z:itemType>book</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Locke</foaf:surname>
+                        <foaf:givenName>John</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Segundo tratado sobre el gobierno civil</dc:title>
+    </bib:Book>
+    <bib:Book rdf:about="#item_35">
+        <z:itemType>book</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Rousseau</foaf:surname>
+                        <foaf:givenName>Jean-Jacques</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>El contrato social</dc:title>
+    </bib:Book>
+    <bib:Report rdf:about="https://www.un.org/en/about-us/universal-declaration-of-human-rights">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>United Nations</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Universal Declaration of Human Rights</dc:title>
+        <dc:date>1948</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.un.org/en/about-us/universal-declaration-of-human-rights</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Report>
+    <bib:Report rdf:about="#item_37">
+        <z:itemType>report</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>United Nations</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Declaration of Principles for International Election Observation</dc:title>
+        <dc:date>2005</dc:date>
+    </bib:Report>
+    <rdf:Description rdf:about="#item_38">
+        <z:itemType>standard</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                   <foaf:Person><foaf:surname>IETF</foaf:surname></foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>RFC 1421–1424: Privacy Enhanced Mail</dc:title>
+    </rdf:Description>
+    <bib:Document rdf:about="#item_39">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>OpenSSL Software Foundation</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>OpenSSL Documentation</dc:title>
+    </bib:Document>
+    <bib:Document rdf:about="https://www.fortinet.com/lat/resources/cyberglossary/digital-certificates">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Fortinet</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_43"/>
+        <dc:title>Certificados digitales</dc:title>
+        <dc:date>s. f.</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.fortinet.com/lat/resources/cyberglossary/digital-certificates</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Memo rdf:about="#item_43">
+        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;p&gt;Glosario técnico utilizado como apoyo conceptual en la explicación del uso y funciones de los certificados digitales.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;/div&gt;</rdf:value>
+    </bib:Memo>
+    <bib:Document rdf:about="https://www.keyfactor.com/blog/self-signed-certificate-risks/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Keyfactor</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Riesgos de los certificados autofirmados</dc:title>
+        <dc:date>January 7, 2021</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://www.keyfactor.com/blog/self-signed-certificate-risks/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://sede.agenciatributaria.gob.es/Sede/ayuda/consultas-informaticas/firma-digital-sistema-clave-pin-tecnica/informacion-pasos-obtencion-certificado-electronico.html">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Agencia Tributaria</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_45"/>
+        <dc:title>Información sobre los pasos para la obtención del certificado electrónico</dc:title>
+        <dc:date>s. f.</dc:date>
+        <z:language>Español</z:language>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://sede.agenciatributaria.gob.es/Sede/ayuda/consultas-informaticas/firma-digital-sistema-clave-pin-tecnica/informacion-pasos-obtencion-certificado-electronico.html</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Memo rdf:about="#item_45">
+        <rdf:value>&lt;div data-schema-version=&quot;9&quot;&gt;&lt;p&gt;Guía oficial utilizada como referencia del proceso práctico de obtención de certificados electrónicos en España.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;/div&gt;</rdf:value>
+    </bib:Memo>
+    <bib:Book rdf:about="#item_46">
+        <z:itemType>book</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Bloch</foaf:surname>
+                        <foaf:givenName>Marc</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>La sociedad feudal</dc:title>
+        <dc:date>1939</dc:date>
+    </bib:Book>
+    <bib:Book rdf:about="#item_47">
+        <z:itemType>book</z:itemType>
+        <dc:publisher>
+           <foaf:Organization><foaf:name>Crítica</foaf:name></foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Thompson</foaf:surname>
+                        <foaf:givenName>E.P.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>La formación de la clase obrera en Inglaterra</dc:title>
+        <dc:date>1963</dc:date>
+        <z:language>Español</z:language>
+    </bib:Book>
+    <bib:Book rdf:about="#item_48">
+        <z:itemType>book</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Oxford University Press</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Birch</foaf:surname>
+                        <foaf:givenName>Sarah</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Electoral Malpractice</dc:title>
+        <dc:date>2011</dc:date>
+    </bib:Book>
+    <bib:BookSection rdf:about="#item_49">
+        <z:itemType>bookSection</z:itemType>
+        <dcterms:isPartOf>
+           <bib:Book><dc:title>Democracy’s Value</dc:title></bib:Book>
+        </dcterms:isPartOf>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Cambridge University Press</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Przeworski</foaf:surname>
+                        <foaf:givenName>Adam</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Minimalist Conception of Democracy</dc:title>
+        <dc:date>1999</dc:date>
+        <z:originalPublisher>Shapiro, Ian</z:originalPublisher>
+    </bib:BookSection>
+    <bib:Book rdf:about="#item_50">
+        <z:itemType>book</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Harvard University Press</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Hansmann</foaf:surname>
+                        <foaf:givenName>Henry</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>The Ownership of Enterprise</dc:title>
+        <dc:date>1996</dc:date>
+        <z:language>Inglés</z:language>
+    </bib:Book>
+    <rdf:Description rdf:about="#item_51">
+        <z:itemType>document</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+                <vcard:adr>
+                    <vcard:Address>
+                       <vcard:locality>2021</vcard:locality>
+                    </vcard:Address>
+                </vcard:adr>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Universidad de Zaragoza</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Normativa de voto electrónico Universidad Zaragoza</dc:title>
+        <z:language>Español</z:language>
+    </rdf:Description>
+    <rdf:Description rdf:about="#item_52">
+        <z:itemType>document</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                       <foaf:surname>Universidad de Murcia</foaf:surname>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Normativa de voto electrónico Universidad Murcia</dc:title>
+        <dc:date>2020</dc:date>
+        <z:language>Español</z:language>
+    </rdf:Description>
+    <bib:Document rdf:about="https://www.scytl.com/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                   <foaf:Person><foaf:surname>Scytl</foaf:surname></foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Scytl Election Technologies</dc:title>
+        <dc:date>2024</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.scytl.com/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://www.civica.com/en-gb/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                   <foaf:Person><foaf:surname>Civica</foaf:surname></foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>Civica Election Services</dc:title>
+        <dc:date>2024</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.civica.com/en-gb/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://www.eballot.com/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                   <foaf:Person><foaf:surname>eBallot</foaf:surname></foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:title>eBallot Online Voting</dc:title>
+        <dc:date>2024</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://www.eballot.com/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://pypi.org/project/psycopg2/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <dc:title>Psycopg2 documentation</dc:title>
+        <dc:date>10 oct 2025</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://pypi.org/project/psycopg2/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <bib:Document rdf:about="https://getbootstrap.com/docs/5.0/getting-started/introduction/">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <dc:title>Bootstrap documentation</dc:title>
+        <dc:date>s. f.</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>https://getbootstrap.com/docs/5.0/getting-started/introduction/</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+    </bib:Document>
+    <z:Collection rdf:about="#collection_2">
+        <dc:title>TFG TeleVot APP</dc:title>
+        <dcterms:hasPart rdf:resource="#item_11"/>
+        <dcterms:hasPart rdf:resource="#item_12"/>
+        <dcterms:hasPart rdf:resource="#item_13"/>
+        <dcterms:hasPart rdf:resource="#item_14"/>
+        <dcterms:hasPart rdf:resource="https://www.venice.coe.int/webforms/documents/default.aspx?pdffile=CDL-AD(2002)023rev-e"/>
+        <dcterms:hasPart rdf:resource="https://www.venice.coe.int/webforms/documents/?pdf=CDL-AD(2020)031-e"/>
+        <dcterms:hasPart rdf:resource="https://www.eeas.europa.eu/eu-election-observation-missions_en"/>
+        <dcterms:hasPart rdf:resource="https://vote.heliosvoting.org/"/>
+        <dcterms:hasPart rdf:resource="#item_19"/>
+        <dcterms:hasPart rdf:resource="#item_20"/>
+        <dcterms:hasPart rdf:resource="https://www.sede.fnmt.gob.es/certificados"/>
+        <dcterms:hasPart rdf:resource="https://www.python.org/"/>
+        <dcterms:hasPart rdf:resource="https://docs.djangoproject.com/en/6.0/"/>
+        <dcterms:hasPart rdf:resource="https://www.postgresql.org/docs/"/>
+        <dcterms:hasPart rdf:resource="https://pypi.org/project/cryptography/"/>
+        <dcterms:hasPart rdf:resource="https://openpyxl.readthedocs.io/en/stable/"/>
+        <dcterms:hasPart rdf:resource="https://plantuml.com/es/"/>
+        <dcterms:hasPart rdf:resource="https://graphviz.org/"/>
+        <dcterms:hasPart rdf:resource="https://chatgpt.com/"/>
+        <dcterms:hasPart rdf:resource="#item_32"/>
+        <dcterms:hasPart rdf:resource="#item_33"/>
+        <dcterms:hasPart rdf:resource="#item_34"/>
+        <dcterms:hasPart rdf:resource="#item_35"/>
+        <dcterms:hasPart rdf:resource="https://www.un.org/en/about-us/universal-declaration-of-human-rights"/>
+        <dcterms:hasPart rdf:resource="#item_37"/>
+        <dcterms:hasPart rdf:resource="#item_38"/>
+        <dcterms:hasPart rdf:resource="#item_39"/>
+        <dcterms:hasPart rdf:resource="https://www.fortinet.com/lat/resources/cyberglossary/digital-certificates"/>
+        <dcterms:hasPart rdf:resource="https://www.keyfactor.com/blog/self-signed-certificate-risks/"/>
+        <dcterms:hasPart rdf:resource="https://sede.agenciatributaria.gob.es/Sede/ayuda/consultas-informaticas/firma-digital-sistema-clave-pin-tecnica/informacion-pasos-obtencion-certificado-electronico.html"/>
+        <dcterms:hasPart rdf:resource="#item_46"/>
+        <dcterms:hasPart rdf:resource="#item_47"/>
+        <dcterms:hasPart rdf:resource="#item_48"/>
+        <dcterms:hasPart rdf:resource="#item_49"/>
+        <dcterms:hasPart rdf:resource="#item_50"/>
+        <dcterms:hasPart rdf:resource="#item_51"/>
+        <dcterms:hasPart rdf:resource="#item_52"/>
+        <dcterms:hasPart rdf:resource="https://www.scytl.com/"/>
+        <dcterms:hasPart rdf:resource="https://www.civica.com/en-gb/"/>
+        <dcterms:hasPart rdf:resource="https://www.eballot.com/"/>
+        <dcterms:hasPart rdf:resource="https://pypi.org/project/psycopg2/"/>
+        <dcterms:hasPart rdf:resource="https://getbootstrap.com/docs/5.0/getting-started/introduction/"/>
+    </z:Collection>
+</rdf:RDF>
