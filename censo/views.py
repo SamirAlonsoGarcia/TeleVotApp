@@ -854,6 +854,34 @@ def junta_votaciones_gestionar(request):
     return render(request,'roles/junta/ManejarVotacion.html',{'votacion': votacion,'censos': censos,'form1': form_candidatura,'mesa_ya_sorteada': mesa_ya_sorteada,'candidaturas': candidaturas,'integrantes': integrantes_asociados,'calendario': calendario,'form_calendario': form_calendario,'calendario_bloqueado': calendario_bloqueado, 'form_director': form_director,})
 
 @role_required('junta')
+def Junta_vot_toggle_estado(request):
+    if request.method != "POST":
+        return redirect('Junta_votaciones_listado')
+    
+    votacion_id = request.POST.get("votacion_id")
+    votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
+
+    votacion.Estado = not bool(votacion.Estado)
+    votacion.save()
+    messages.success(request, f"Estado actualizado: {'Activa' if votacion.Estado else 'Inactiva'}.")
+
+    return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
+
+@role_required('junta')
+def junta_vot_toggle_recuento(request):
+    if request.method != "POST":
+        return redirect('Junta_votaciones_listado')
+
+    votacion_id = request.POST.get("votacion_id")
+    votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
+
+    votacion.RecuentoAutorizado = not bool(votacion.RecuentoAutorizado)
+    votacion.save()
+    messages.success(request, f"Recuento autorizado: {'Sí' if votacion.RecuentoAutorizado else 'No'}.")
+
+    return redirect(f"{reverse('Junta_votaciones_gestionar')}?votacion_id={votacion_id}")
+
+@role_required('junta')
 def junta_vot_eliminar_candidatura(request):
     #hay que tocar todo esto
     if request.method == "POST":

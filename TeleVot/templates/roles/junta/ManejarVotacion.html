@@ -138,7 +138,38 @@
               <button type="submit" class="btn btn-primary w-100">Sortear Mesa Electoral</button>
             </form>
           {% endif %}
-
+          <hr>
+          </br>
+            <!-- Toggle Estado -->
+          <form method="post" action="{% url 'Junta_vot_toggle_estado' %}" class="mb-2">
+            {% csrf_token %}
+            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+            <button type="submit" class="btn w-100 {% if votacion.Estado %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+              {% if votacion.Estado %}
+                Cerrar votación (pasar a Inactiva)
+              {% else %}
+                Activar votación
+              {% endif %}
+            </button>
+          </form>
+          <!-- Toggle RecuentoAutorizado -->
+          <form method="post" action="{% url 'Junta_vot_toggle_recuento' %}">
+            {% csrf_token %}
+            <input type="hidden" name="votacion_id" value="{{ votacion.IdVotacion }}">
+            <button type="submit" class="btn w-100 {% if votacion.RecuentoAutorizado %}btn-outline-secondary{% else %}btn-outline-primary{% endif %}"
+                    {% if votacion.Estado %}disabled{% endif %}>
+              {% if votacion.RecuentoAutorizado %}
+                Desautorizar recuento
+              {% else %}
+                Autorizar recuento
+              {% endif %}
+            </button>
+            {% if votacion.Estado %}
+              <div class="form-text text-muted mt-1">
+                Cierra la votación para poder autorizar el recuento.
+              </div>
+            {% endif %}
+          </form>
         </div>
       </div>
     </div>
