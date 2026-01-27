@@ -116,7 +116,7 @@
 
     <div class="row mt-3">
       <div class="col-md-4">
-        <form id="form_estadisticas" method="post" action="{% url 'Elector_estadisticas' %}"
+        <form id="form_estadisticas" method="post" action="{% url 'Elector_estadisticas_activa' %}"
               onsubmit="return actualizarVotacionId('form_estadisticas')">
           {% csrf_token %}
           <input type="hidden" name="votacion_id" value="">
@@ -125,7 +125,7 @@
       </div>
       <div class="col-md-4">
         <form id="form_incidencia" method="post" action="{% url 'Elector_incidencia_votacion' %}"
-              onsubmit="return actualizarVotacionId('form_incidencia')">
+              onsubmit="return actualizarVotacionIdActiva('form_incidencia')">
           {% csrf_token %}
           <input type="hidden" name="votacion_id" value="">
           <button type="button" class="btn btn-danger w-100" onclick="abrirIncidenciaDesdeSeleccion()">Abrir incidencia</button>
@@ -233,7 +233,8 @@
 
     <div class="row mt-3">
       <div class="col-md-4">
-        <form id="form_estadisticas_final" method="post" action="{% url 'Elector_estadisticas' %}">
+        <form id="form_estadisticas_final" method="post" action="{% url 'Elector_estadisticas_finalizada' %}"
+              onsubmit="return actualizarVotacionIdFinal('form_estadisticas_final')">
           {% csrf_token %}
           <input type="hidden" name="votacion_id" value="">
           <button type="submit" class="btn btn-primary w-100">Estadísticas</button>
@@ -302,13 +303,23 @@ function getSeleccion() {
 }
 
 function actualizarVotacionId(formId) {
-  const seleccion = getSeleccion();
-  if (!seleccion) {
-    alert("Selecciona una votación primero.");
-    return false;
-  }
-  const form = document.getElementById(formId);
-  form.querySelector('input[name="votacion_id"]').value = seleccion.value;
+  const sel = document.querySelector('input[name="votacion_id"]:checked');
+  if (!sel) { alert("Selecciona una votación primero."); return false; }
+  document.getElementById(formId).querySelector('input[name="votacion_id"]').value = sel.value;
+  return true;
+}
+
+function actualizarVotacionIdActiva(formId) {
+  const sel = document.querySelector('input[name="votacion_id"]:checked');
+  if (!sel) { alert("Selecciona una votación activa primero."); return false; }
+  document.getElementById(formId).querySelector('input[name="votacion_id"]').value = sel.value;
+  return true;
+}
+
+function actualizarVotacionIdFinal(FinalformId) {
+  const sel = document.querySelector('input[name="votacion_id_finalizada"]:checked');
+  if (!sel) { alert("Selecciona una votación finalizada primero."); return false; }
+  document.getElementById(formId).querySelector('input[name="votacion_id"]').value = sel.value;
   return true;
 }
 

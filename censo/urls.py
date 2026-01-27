@@ -51,7 +51,8 @@ urlpatterns=[
     path('elector/noticias/', views.Noticia, name='Elector_noticias'),
     # acciones sobre votaciones
     path('elector/votaciones/emitir/', views.emitir_voto, name='Elector_emitir_voto'),
-    path('elector/votaciones/estadisticas/', views.estadisticasVotacion, name='Elector_estadisticas'),
+    path('elector/votaciones/estadisticas/activa/', views.elector_estadisticas_activa, name='Elector_estadisticas_activa'),
+    path('elector/votaciones/estadisticas/finalizada/', views.elector_estadisticas_finalizada, name='Elector_estadisticas_finalizada'),
     # incidencias y censo
     path('elector/censos/incidencia/', views.MandarIncidenciaCenso, name='Elector_incidencia_censo'),
     path('elector/incidencias/', views.elector_incidencias, name='Elector_incidencias'),

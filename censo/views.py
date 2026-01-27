@@ -1384,7 +1384,10 @@ def emitir_voto(request):
 @role_required('elector')
 def estadisticasVotacion(request):
     votacion_id = request.POST.get("votacion_id")
-    votacion = Votacion.objects.get(IdVotacion=votacion_id)
+    if not votacion_id:
+        messages.error(request, "No has seleccionado ninguna votación.")
+        return redirect('Elector_votaciones')
+    votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
 
     total_esperado = votacion.NParticipantes
     total_emitidos = Voto.objects.filter(IdVotacion=votacion).count()
@@ -1392,6 +1395,27 @@ def estadisticasVotacion(request):
     ya_votado = Voto.objects.filter(IdVotacion=votacion,idUsuario=request.user).exists()
 
     return render(request,'roles/elector/EstadisticasVotacion.html',{'votacion': votacion,'total_esperado': total_esperado,'total_emitidos': total_emitidos,'participacion': participacion,'ya_votado': ya_votado,})
+
+@role_required('elector')
+def elector_estadisticas_activa(request):
+    votacion_id = request.POST.get("votacion_id")
+    if not votacion_id:
+        messages.error(request, "No has seleccionado ninguna votación.")
+        return redirect('Elector_votaciones')
+    votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
+
+    total_esperado = votacion.NParticipantes
+    total_emitidos = Voto.objects.filter(IdVotacion=votacion).count()
+    participacion = (total_emitidos / total_esperado) * 100 if total_esperado else 0
+    ya_votado = Voto.objects.filter(IdVotacion=votacion,idUsuario=request.user).exists()
+
+    return render(request,'roles/elector/EstadisticasVotacion.html',{'votacion': votacion,'total_esperado': total_esperado,'total_emitidos': total_emitidos,'participacion': participacion,'ya_votado': ya_votado,})
+
+@role_required('elector')
+def elector_estadisticas_finalizada(request):
+    votaciones = Votacion.objects.filter(Estado=False).order_by('-IdVotacion')
+    # TO DO
+    return render(request,'roles/elector/EstadisticasVotacionesFinalizadas.html',{'votaciones': votaciones,})
 
 @role_required('elector')
 def Noticia(request):
