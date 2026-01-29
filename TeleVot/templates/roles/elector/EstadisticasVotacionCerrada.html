@@ -1,0 +1,97 @@
+{% extends "roles/elector/base_elector.html" %}
+{% load static %}
+
+{% block title %}Resultados · {{ votacion.TituloVotacion }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+
+    <!-- RESUMEN GENERAL -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Resultados de la votación</h5>
+      </div>
+      <div class="card-body">
+        <h4 class="mb-3">{{ votacion.TituloVotacion }}</h4>
+
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            Total de censados:
+            <strong>{{ resumen.total_censados }}</strong>
+          </li>
+          <li class="list-group-item">
+            Votos emitidos:
+            <strong>{{ resumen.total_votos_emitidos }}</strong>
+          </li>
+          <li class="list-group-item">
+            Participación:
+            <strong>{{ resumen.porcentaje_participacion|floatformat:2 }}%</strong>
+          </li>
+          <li class="list-group-item">
+            Estado:
+            <span class="text-success">Votación cerrada y recuento realizado ✅</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- GANADORA -->
+    {% if resumen.ganadora %}
+    <div class="card shadow-sm mb-4 border-success">
+      <div class="card-body">
+        <h5 class="text-success mb-2">
+          🏆 Candidatura ganadora
+        </h5>
+        <p class="mb-1">
+          <strong>{{ resumen.ganadora }}</strong>
+        </p>
+        <p class="text-muted mb-0">
+          Votos obtenidos: {{ resumen.votos_ganadora }}
+        </p>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- DETALLE POR CANDIDATURA -->
+    <div class="card shadow-sm">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Detalle del recuento</h5>
+      </div>
+      <div class="card-body">
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Candidatura</th>
+                <th class="text-end">Votos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in detalle %}
+                <tr
+                  {% if r.candidatura__NombreCandidatura == resumen.ganadora %}
+                    class="table-success"
+                  {% endif %}
+                >
+                  <td>{{ r.candidatura__NombreCandidatura }}</td>
+                  <td class="text-end">{{ r.numero_votos }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="2" class="text-center text-muted">
+                    No hay datos de recuento disponibles.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

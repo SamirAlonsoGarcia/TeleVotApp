@@ -37,7 +37,7 @@
 
             {% if unlock_ok %}
               <div class="alert alert-success small mb-2">
-                Clave privada habilitada temporalmente ✅ (ventana activa).
+                Clave privada habilitada temporalmente.
               </div>
             {% else %}
               <div class="alert alert-warning small mb-2">
@@ -89,13 +89,39 @@
 
       </div>
     </div>
+
+    <!-- BLOQUE: RESUMEN (si existe) -->
+    {% if resumen %}
+    <div class="card shadow-sm mt-4">
+      <div class="card-header text-white" style="background-color:#103957;">
+        <h5 class="mb-0">Resumen del recuento</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Total censados:</strong> {{ resumen.total_censados }}</p>
+        <p class="mb-1"><strong>Total votos emitidos:</strong> {{ resumen.total_votos_emitidos }}</p>
+        <p class="mb-1"><strong>Participación:</strong> {{ resumen.porcentaje_participacion }}%</p>
+
+        <hr>
+        <p class="mb-1">
+          <strong>Candidatura ganadora:</strong>
+          {% if resumen.candidatura_ganadora %}
+            {{ resumen.candidatura_ganadora.NombreCandidatura }}
+          {% else %}
+            (sin determinar)
+          {% endif %}
+        </p>
+        <p class="mb-0"><strong>Votos ganadora:</strong> {{ resumen.votos_ganadora }}</p>
+      </div>
+    </div>
+    {% endif %}
+
   </div>
 
   <!-- RESULTADOS -->
   <div class="col-md-6">
     <div class="card shadow-sm">
       <div class="card-header text-white" style="background-color:#103957;">
-        <h5 class="mb-0">Resultados del recuento</h5>
+        <h5 class="mb-0">Detalle por candidatura</h5>
       </div>
       <div class="card-body">
         <h5 class="mb-3">Recuento – {{ votacion.TituloVotacion }}</h5>
@@ -104,15 +130,15 @@
           <table class="table table-hover table-sm align-middle">
             <thead class="table-light">
               <tr>
-                <th>Opción (hash)</th>
+                <th>Candidatura</th>
                 <th>Votos</th>
               </tr>
             </thead>
             <tbody>
-              {% for r in resultados %}
+              {% for r in detalle %}
                 <tr>
-                  <td>{{ r.hashVoto }}</td>
-                  <td>{{ r.cantidad }}</td>
+                  <td>{{ r.candidatura.NombreCandidatura }}</td>
+                  <td>{{ r.numero_votos }}</td>
                 </tr>
               {% empty %}
                 <tr>

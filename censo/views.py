@@ -1,5 +1,7 @@
 from ast import If
+from collections import Counter
 from datetime import timedelta
+from decimal import Decimal
 from django.http import HttpResponseRedirect, FileResponse, JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import authenticate, login, logout
@@ -31,7 +33,7 @@ import openpyxl
 from functools import wraps
 
 from urllib3 import request
-from .models import CalendarioVotacion, Noticias, RolUsuario, Usuario, Censo, MesaElectoral, Votacion, Voto, Candidatura, Incidencia, CensoUsuario, CensoVotacion, CandidatosNombrados, InscritosVotacion, IntegrantesCandidatura, IntegrantesMesa, Certificado, ComunicacionDirector
+from .models import CalendarioVotacion, Noticias, RolUsuario, Usuario, Censo, MesaElectoral, Votacion, Voto, Candidatura, Incidencia, CensoUsuario, CensoVotacion, CandidatosNombrados, InscritosVotacion, IntegrantesCandidatura, IntegrantesMesa, Certificado, ComunicacionDirector, ResultadoCandidatura, ResultadoVotacion
 from .forms import JuntaNoticiaForm, LoginForm, MesaNoticiaForm, NuevoUsuarioForm, NuevaCandidaturaForm, NuevaVotacionForm, AdminCrearUsuarioForm, MesaNoticiaForm, NuevaIncidenciaForm, JuntaIncidenciaForm, CalendarioVotacionForm, AsignarDirectorCampañaForm
 
 #getobject_or_404 funcion que maneja la salida de una operacion con o sin parametros y que devuelve una pagina de error si no se puede procesar.
@@ -1131,55 +1133,140 @@ def mesa_recuento(request):
     mesa = mesa_rel.mesa
     votacion = mesa.IdVotacion
 
-    certificados = Certificado.objects.filter(propietario_mesa=mesa, TipoCertificado='mesa', revocado=False).first()
+    cert_mesa =  Certificado.objects.filter(propietario_mesa=mesa, TipoCertificado='mesa', revocado=False).first()
 
-    if not certificados or getattr(certificados, 'revocado', False):
+    if not cert_mesa or getattr(cert_mesa, 'revocado', False) or not cert_mesa.clave_privada:
         messages.error(request, "No hay un certificado válido de mesa para poder realizar el recuento.")
         return redirect('Mesa_certificado')
-
+    
     votacion_cerrada = (votacion.Estado is False)
     if not votacion_cerrada:
         messages.error(request, "La votación aún no ha finalizado. No se puede realizar el recuento.")
         return redirect('Inicio_mesa')
 
-    clave_desbloqueada = mesa_clave_privada_desbloqueada(request, segundos=300)
-    resultados=[]
-    
-    if request.method == 'POST':
-        if not clave_desbloqueada:
-            messages.error(request, "Debes habilitar la visualización/uso excepcional de la clave privada (5 min) desde Certificado.")
-            return redirect('Mesa_recuento')
-        # Realizar recuento
-        resultados = recuentoVotacion(mesa, votacion, certificados.clave_privada)
-        messages.success(request, "Recuento realizado correctamente.")
-        
-        request.session['mesa_privkey_unlock'] = False
-        request.session.pop('mesa_privkey_unlock_ts', None)
+    clave_desbloqueada = mesa_clave_privada_desbloqueada(request, segundos=1000)
+    resumen= None
+    detalle=None
 
-    return render(request, 'roles/mesa/RecuentoVotacion.html', {'mesa': mesa,'votacion': votacion,'certificados': certificados,'clave_desbloqueada':clave_desbloqueada,'resultados': resultados,})
+    if request.method == "POST":
+        accion = request.POST.get("accion")
 
-def recuentoVotacion(mesa, votacion, clave_privada):
+        if accion== "recuento":
+            if not clave_desbloqueada:
+                messages.error(request, "Debes habilitar la visualización/uso excepcional de la clave privada desde Certificado.")
+                return redirect("Mesa_recuento")
+            resumen, detalle = recuentoVotacion(votacion, cert_mesa.clave_privada)
+
+            request.session['mesa_privkey_unlock']= False
+            request.session.pop('mesa_privkey_unlock_ts', None)
+
+            messages.success(request, "Recuento realizado y guardado correctamente.")
+            return redirect("Mesa_recuento")
+
+    if hasattr(votacion, "resultado"):
+        res = votacion.resultado
+        resumen = {"total_censados": res.total_censados,"total_votos_emitidos": res.total_votos_emitidos,"porcentaje_participacion": float(res.porcentaje_participacion),"ganadora": res.candidatura_ganadora.NombreCandidatura if res.candidatura_ganadora else None,"votos_ganadora": res.votos_ganadora,}
+        detalle = list(res.detalle.select_related("candidatura").values("candidatura__NombreCandidatura","numero_votos",).order_by("-numero_votos"))
+
+    return render(request, 'roles/mesa/RecuentoVotacion.html', {'mesa': mesa,'votacion': votacion,'certificado': cert_mesa,'unlock_ok':clave_desbloqueada, 'votacion_cerrada':votacion_cerrada,'resumen':resumen,'detalle':detalle})
+
+@transaction.atomic
+def recuentoVotacion(votacion, clave_privada_mesa_pem: str):
     # Realiza el recuento de votos para la mesa y votación dada, usando la clave privada proporcionada.
     # Verifica que el usuario es miembro de la mesa para esa votación
-    es_miembro_mesa = MesaElectoral.objects.filter(votacion=votacion, usuario=request.user).exists()
+    # Si ya tenia un recuento ejecutado, recuperar valores
+    if hasattr(votacion,"resultado"):
+        res= votacion.resultado
+        detalle = list(res.detalle.select_related("candidatura").values("candidatura__IdCandidatura", "candidatura__NombreCandidatura", "numero_votos").order_by("-numero_votos"))
+        resumen = {"ya_existia": True, "total_censados": res.total_censados, "total_votos_emitidos": res.total_votos_emitidos, "porcentaje_participacion": float(res.porcentaje_participacion), "ganadora_id":res.candidatura_ganadora_id, "ganadora_votos":res.votos_ganadora,}
+        return resumen,detalle
+    
+    #cand_ids_validas = set(CandidatosNombrados.objects.filter(votacion=votacion).values_list("candidatura_id",flat=True))
+    votos= Voto.objects.filter(IdVotacion=votacion).select_related("idUsuario")
+    conteo=Counter()
 
+    votos_invalidos=0
+    firmas_invalidas=0
+    candidatura_invalida=0
 
-    if not es_miembro_mesa:
-        return HttpResponseForbidden("No tienes permiso para autorizar el recuento.")
+    for v in votos:
+        if not v.hashVoto or " :: " not in v.hashVoto:
+            votos_invalidos += 1
+            continue
+        parte_cifrada, parte_firma = [x.strip() for x in v.hashVoto.split(" :: ", 1)]
 
-    # Cambiar el estado de la votación
-    if votacion.estado == False:
-        votacion.RecuentoAutorizado = True
-        votacion.save()
-        messages.success(request, "Se ha autorizado el recuento.")
-        certificado_mesa = Certificado.objects.filter(propietario_mesa=mesa, TipoCertificado='mesa', revocado=False).first()
-        #aqui falta funcionalidad
-        #obtener todos los votos asociados a la votacion
-        votos = Voto.objects.filter(IdVotacion=votacion)
-        return render(request, 'RecuentoVotacion.Html', {'certificados':certificado_mesa, 'votacion':votacion})
-    else:
-        messages.warning(request, "La votación aún no está cerrada o ya se autorizó el recuento.")
-        return redirect(request,'votaciones')
+        try:
+            contenido_plano = descifrar_con_clave_privada_base64(parte_cifrada, clave_privada_mesa_pem)
+        except Exception:
+            votos_invalidos +=1
+            continue   
+    
+        id_vot, id_cand = parsear_contenido_voto(contenido_plano)
+
+        if not id_vot or not id_cand or int(id_vot) != int(votacion.IdVotacion):
+            votos_invalidos +=1
+            continue
+
+        if not v.idUsuario_id:
+            firmas_invalidas +=1
+            continue
+        
+        cert_user = Certificado.objects.filter(TipoCertificado="usuario", propietario_usuario_id=v.idUsuario_id, revocado=False).first()
+
+        if not cert_user or not cert_user.clave_publica:
+            firmas_invalidas +=1
+            continue
+        
+        if not verificar_firma_usuario(contenido_plano, parte_firma, cert_user.clave_publica):
+            firmas_invalidas +=1
+            continue
+        
+        conteo[int(id_cand)]+=1
+    
+    total_votos_emitidos= sum(conteo.values())
+    total_censados = int(votacion.NParticipantes or 0)
+    cv = CensoVotacion.objects.filter(votacion=votacion).select_related("censo").first()
+    if cv:
+        if getattr(cv.censo, "NCensados", None):
+            total_censados = int(cv.censo.NCensados)
+        else:
+            total_censados = CensoUsuario.objects.filter(censo=cv.censo).count()
+    
+    porcentaje = 0.0
+    if total_censados > 0 :
+        porcentaje = (total_votos_emitidos / total_censados) * 100.0
+    
+    # calcular la ganadora para el resultado cerrado, en futuras implementacios llamar al metodo de calculo de ganador correspondiente
+    ganadora_id=None
+    votos_ganadora = 0
+    if conteo:
+        ganadora_id, votos_ganadora = max(conteo.items(), key=lambda kv: kv[1])
+    
+    ganadora_obj = None
+    if ganadora_id is not None:
+        ganadora_obj =Candidatura.objects.filter(IdCandidatura=ganadora_id).first()
+    
+    resultado=ResultadoVotacion.objects.create(votacion=votacion,total_censados=total_censados,total_votos_emitidos=total_votos_emitidos,porcentaje_participacion=Decimal(str(round(porcentaje, 2))),candidatura_ganadora=ganadora_obj,votos_ganadora=votos_ganadora,)
+
+    #Registrar los resultados
+    for cand_id, n in conteo.items():
+        ResultadoCandidatura.objects.create(resultado=resultado, candidatura_id=cand_id, numero_votos=n)
+    
+    votacion.RecuentoAutorizado = True
+    votacion.save(update_fields=["RecuentoAutorizado"])
+
+    resumen = {
+        "ya_existia": False,"total_censados": total_censados,"total_votos_emitidos": total_votos_emitidos,"porcentaje_participacion": float(round(porcentaje, 2)),"ganadora_id": ganadora_id,"ganadora_votos": votos_ganadora,
+        "debug": {
+            "votos_invalidos": votos_invalidos,
+            "firmas_invalidas": firmas_invalidas,
+            "candidatura_invalida": candidatura_invalida,
+        }
+    }
+
+    detalle = list(resultado.detalle.select_related("candidatura").values("candidatura__IdCandidatura","candidatura__NombreCandidatura","numero_votos",).order_by("-numero_votos"))
+
+    return resumen, detalle
 
 @role_required('mesa')
 def mesa_noticias(request):
@@ -1413,9 +1500,25 @@ def elector_estadisticas_activa(request):
 
 @role_required('elector')
 def elector_estadisticas_finalizada(request):
-    votaciones = Votacion.objects.filter(Estado=False).order_by('-IdVotacion')
-    # TO DO
-    return render(request,'roles/elector/EstadisticasVotacionesFinalizadas.html',{'votaciones': votaciones,})
+    if request.method!="POST" :
+        messages.error(request, "No puedes acceder a las estadísticas.")
+        return redirect('Elector_votaciones')
+    votacion_id = request.POST.get("votacion_id")
+    if not votacion_id:
+        messages.error(request, "No has seleccionado ninguna votación.")
+        return redirect('Elector_votaciones')
+    votacion = get_object_or_404(Votacion, IdVotacion=votacion_id)
+    if votacion.Estado:
+        messages.error(request, "La votación aún no ha finalizado.")
+        return redirect('Elector_votaciones')
+    if not hasattr(votacion, "resultado"):
+        messages.error(request, "La votación seleccionada no dispone de resultados finales")
+        return redirect('Elector_votaciones')
+    res = votacion.resultado
+    resumen = {"total_censados": res.total_censados,"total_votos_emitidos": res.total_votos_emitidos,"porcentaje_participacion": float(res.porcentaje_participacion),"ganadora": res.candidatura_ganadora.NombreCandidatura if res.candidatura_ganadora else None,"votos_ganadora": res.votos_ganadora,}
+    detalle = list(res.detalle.select_related("candidatura").values("candidatura__NombreCandidatura","numero_votos",).order_by("-numero_votos"))
+
+    return render(request,'roles/elector/EstadisticasVotacionCerrada.html',{'votacion': votacion,'resumen':resumen,'detalle':detalle,})
 
 @role_required('elector')
 def Noticia(request):
@@ -1653,6 +1756,33 @@ def descifrar_con_clave_privada(contenido_cifrado_base64, clave_privada):
     )
 
     return contenido_descifrado.decode()
+
+def descifrar_con_clave_privada_base64(contenido_cifrado_base64, clave_privada):
+
+    clave_priv = serialization.load_pem_private_key(clave_privada.encode(),password=None,backend=default_backend())
+    contenido_cifrado = base64.b64decode(contenido_cifrado_base64.encode("utf-8"))
+
+    contenido_descifrado = clave_priv.decrypt(contenido_cifrado,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256),algorithm=hashes.SHA256,label=None))
+
+    return contenido_descifrado.decode("utf-8")
+
+def verificar_firma_usuario(contenido_plano: str, firma_base64: str, clave_publica_pem: str) -> bool:
+    try:
+        clave_pub = serialization.load_pem_public_key(clave_publica_pem.encode("utf-8"), backend=default_backend())
+        firma=base64.b64decode(firma_base64.encode("utf-8"))
+        clave_pub.verify(firma, contenido_plano.encode("utf-8"), padding.PKC1v15(), hashes.SHA256())
+        return True
+    except Exception:
+        return False
+
+def parsear_contenido_voto(contenido: str):
+    # Recibe IdVotacion|IdCandidatura
+    # Devuelve id_votacion:int, id_candidatura:int o None None
+    try:
+        a,b = contenido.split("|",1)
+        return int(a.strip(), b.strip())
+    except Exception:
+        return None, None
 
 def cambiar_contraseña(request):
     return render(request, 'CambiarContraseña.html')

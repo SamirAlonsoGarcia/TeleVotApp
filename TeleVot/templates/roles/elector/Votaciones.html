@@ -233,11 +233,15 @@
 
     <div class="row mt-3">
       <div class="col-md-4">
-        <form id="form_estadisticas_final" method="post" action="{% url 'Elector_estadisticas_finalizada' %}"
+        <form id="form_estadisticas_final"
+              method="post"
+              action="{% url 'Elector_estadisticas_finalizada' %}"
               onsubmit="return actualizarVotacionIdFinal('form_estadisticas_final')">
           {% csrf_token %}
           <input type="hidden" name="votacion_id" value="">
-          <button type="submit" class="btn btn-primary w-100">Estadísticas</button>
+          <button type="submit" class="btn btn-primary w-100">
+            Ver resultados
+          </button>
         </form>
       </div>
       <div class="col-md-4">
@@ -316,9 +320,12 @@ function actualizarVotacionIdActiva(formId) {
   return true;
 }
 
-function actualizarVotacionIdFinal(FinalformId) {
+function actualizarVotacionIdFinal(formId) {
   const sel = document.querySelector('input[name="votacion_id_finalizada"]:checked');
-  if (!sel) { alert("Selecciona una votación finalizada primero."); return false; }
+  if (!sel) {
+    alert("Selecciona una votación finalizada primero.");
+    return false;
+  }
   document.getElementById(formId).querySelector('input[name="votacion_id"]').value = sel.value;
   return true;
 }

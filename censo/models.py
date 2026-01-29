@@ -218,3 +218,28 @@ class CalendarioVotacion(models.Model):
 
     def __str__(self):
         return f"Calendario {self.votacion}"
+    
+class ResultadoVotacion(models.Model):
+    votacion = models.OneToOneField(Votacion, on_delete=models.CASCADE, related_name='resultado')
+
+    total_censados=models.PositiveIntegerField()
+    total_votos_emitidos = models.PositiveIntegerField()
+    porcentaje_participacion = models.DecimalField(max_digits=5, decimal_places=2)
+
+    candidatura_ganadora = models.OneToOneField(Candidatura,blank=True, null=True ,on_delete=models.SET_NULL)
+    votos_ganadora = models.PositiveIntegerField(default=0)
+    fecha_recuento = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Resultado {self.votacion.TituloVotacion}"
+    
+class ResultadoCandidatura(models.Model):
+    resultado= models.ForeignKey(ResultadoVotacion, on_delete=models.CASCADE, related_name='detalle')
+    candidatura = models.ForeignKey(Candidatura, on_delete=models.CASCADE)
+    numero_votos = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('resultado', 'candidatura')
+
+    def __str__(self):
+        return f"{self.candidatura.NombreCandidatura}: {self.numero_votos}"
