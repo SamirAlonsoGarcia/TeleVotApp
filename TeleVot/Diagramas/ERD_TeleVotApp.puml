@@ -119,6 +119,25 @@ class CalendarioVotacion {
 }
 
 ' ----------------------------
+' (NUEVO) RESULTADOS PERSISTIDOS
+' ----------------------------
+
+class ResultadoVotacion {
+  +id : PK
+  +total_censados : PositiveInt
+  +total_votos_emitidos : PositiveInt
+  +porcentaje_participacion : Decimal(5,2)
+  +votos_ganadora : PositiveInt
+  +fecha_recuento : DateTime
+}
+
+class ResultadoCandidatura {
+  +id : PK
+  +numero_votos : PositiveInt
+  +unique(resultado,candidatura)
+}
+
+' ----------------------------
 ' TABLAS INTERMEDIAS (N:N)
 ' ----------------------------
 
@@ -219,6 +238,20 @@ CandidatosNombrados "1" <-- "0..*" ComunicacionDirector : campaña (nullable)
 Usuario             "1" <-- "0..*" ComunicacionDirector : director
 
 ' ----------------------------
+' (NUEVO) RELACIONES RESULTADOS
+' ----------------------------
+
+' ResultadoVotacion -> Votacion (1:1)
+Votacion "1" <-- "0..1" ResultadoVotacion : resultado
+
+' ResultadoVotacion -> Candidatura (ganadora) (0..1)
+Candidatura "1" <-- "0..1" ResultadoVotacion : candidatura_ganadora
+
+' ResultadoCandidatura -> ResultadoVotacion (1:N) y -> Candidatura (N:1)
+ResultadoVotacion "1" <-- "0..*" ResultadoCandidatura : detalle
+Candidatura       "1" <-- "0..*" ResultadoCandidatura
+
+' ----------------------------
 ' NOTAS / RESTRICCIONES (para el apéndice)
 ' ----------------------------
 
@@ -249,6 +282,20 @@ note bottom of CensoUsuario
 Tablas puente N:N:
 - Implementan many-to-many explícitos
 - Refuerzan integridad mediante unique_together
+end note
+
+' (NUEVO) Nota resultados
+note right of ResultadoVotacion
+Resultados persistidos (agregados):
+- Se guarda participación y ganadora.
+- El detalle por candidatura se almacena en ResultadoCandidatura.
+- No se almacena relación voto-usuario.
+end note
+
+note bottom of ResultadoCandidatura
+Restricción de integridad:
+- unique(resultado, candidatura)
+(una fila por candidatura en cada recuento)
 end note
 
 ' ----------------------------

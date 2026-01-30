@@ -1,5 +1,5 @@
 @startuml
-title TeleVotApp - Flujo de recuento y publicación de resultados
+title TeleVotApp - Flujo de recuento y publicación de resultados (con persistencia)
 
 skinparam dpi 200
 skinparam defaultFontSize 14
@@ -25,14 +25,26 @@ partition "Junta Electoral" {
 
 partition "Mesa Electoral" {
   if (¿Recuento autorizado?) then (Sí)
-    :Acceder a votos de la votación;
-    :Realizar recuento;
-    :Determinar candidatura ganadora;
-    :Actualizar resultado (Votacion.Resultado);
-    :Publicar resultados;
+
+    if (¿Existe ResultadoVotacion?) then (Sí)
+      :Cargar resultados persistidos;
+    else (No)
+      :Acceder a votos de la votación;
+      :Realizar recuento (conteo por candidatura);
+      :Determinar candidatura ganadora;
+
+      :Persistir ResultadoVotacion\n(participación + ganadora);
+      :Persistir ResultadoCandidatura\n(votos por candidatura);
+    endif
+
+    :Publicar resultados / habilitar consulta;
   else (No)
     :Acceso al recuento bloqueado;
   endif
+}
+
+partition "Elector" {
+  :Consultar resultados de votación finalizada\n(lectura desde BD);
 }
 
 :Proceso electoral finalizado;

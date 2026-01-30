@@ -77,6 +77,25 @@ class CandidatosNombrados {
   +unique(votacion,director) <<si director != null>>
 }
 
+' ----------------------------
+' (NUEVO) RESULTADOS PERSISTIDOS
+' ----------------------------
+
+class ResultadoVotacion {
+  +id : PK
+  +total_censados : PositiveInt
+  +total_votos_emitidos : PositiveInt
+  +porcentaje_participacion : Decimal(5,2)
+  +votos_ganadora : PositiveInt
+  +fecha_recuento : DateTime
+}
+
+class ResultadoCandidatura {
+  +id : PK
+  +numero_votos : PositiveInt
+  +unique(resultado,candidatura)
+}
+
 ' Relaciones principales
 Votacion "1" <-- "0..*" MesaElectoral : IdVotacion
 Votacion "1" <-- "0..1" CalendarioVotacion : calendario
@@ -90,11 +109,38 @@ Censo    "1" <-- "0..*" CensoVotacion
 Votacion    "1" <-- "0..*" CandidatosNombrados
 Candidatura "1" <-- "0..*" CandidatosNombrados
 
+' ----------------------------
+' (NUEVO) Relaciones de resultados
+' ----------------------------
+
+' Resultado final por votación (persistente)
+Votacion "1" <-- "0..1" ResultadoVotacion : resultado
+
+' Candidatura ganadora (opcional)
+Candidatura "1" <-- "0..1" ResultadoVotacion : candidatura_ganadora
+
+' Detalle por candidatura para ese resultado
+ResultadoVotacion "1" <-- "0..*" ResultadoCandidatura : detalle
+Candidatura       "1" <-- "0..*" ResultadoCandidatura
+
 note bottom of CandidatosNombrados
 Restricciones de integridad:
 - unique(votacion, candidatura)
 - unique(votacion, director) si director != null
 (1 director de campaña por votación)
+end note
+
+note right of ResultadoVotacion
+Resultados persistidos (agregados):
+- Se almacena participación y candidatura ganadora.
+- El desglose por candidatura se guarda en ResultadoCandidatura.
+- No se guarda relación voto-usuario.
+end note
+
+note bottom of ResultadoCandidatura
+Restricción de integridad:
+- unique(resultado, candidatura)
+(una fila por candidatura en cada recuento)
 end note
 
 legend right
