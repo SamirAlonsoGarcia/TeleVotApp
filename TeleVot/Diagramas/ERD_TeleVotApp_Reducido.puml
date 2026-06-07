@@ -1,0 +1,178 @@
+@startuml TeleVotApp_ERD_RESUMEN
+!pragma layout smetana
+
+hide methods
+hide stereotypes
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 200
+skinparam defaultFontSize 14
+skinparam classFontSize 14
+left to right direction
+
+' ============================
+' ENTIDADES PRINCIPALES
+' ============================
+
+class Usuario {
+  +Identificación fiscal
+  +Datos personales
+  +Credenciales / email
+  +Estado de acceso
+}
+
+class Censo {
+  +Datos del censo
+  +Nº censados
+  +Fichero asociado
+}
+
+class Votacion {
+  +Datos generales
+  +Estado y recuento
+  +Participación / resultado
+  +Bases y descripción
+}
+
+class MesaElectoral {
+  +Datos de mesa
+  +Estado de sorteo
+  +Visibilidad certificado
+}
+
+class Candidatura {
+  +Datos candidatura
+  +Tipo: individual / múltiple
+  +Descripción
+}
+
+class Voto {
+  +Hash del voto
+  +Fecha de emisión
+  +Usuario opcional
+}
+
+class Certificado {
+  +Tipo: usuario / mesa
+  +Claves criptográficas
+  +Estado de revocación
+  +Fechas relevantes
+}
+
+class Noticias {
+  +Título y texto
+  +Visibilidad en app
+  +Relación opcional
+}
+
+class Incidencia {
+  +Datos incidencia
+  +Estado de resolución
+  +Adjuntos / respuesta admin
+}
+
+class ComunicacionDirector {
+  +Mensaje de campaña
+  +Fecha de envío
+  +Imagen opcional
+}
+
+class CalendarioVotacion {
+  +Fechas del proceso
+  +Duraciones por fase
+  +Publicación resultados
+}
+
+' ============================
+' TABLAS INTERMEDIAS
+' ============================
+
+class CensoUsuario {
+  +Relación Usuario-Censo
+  +Restricción única
+}
+
+class CensoVotacion {
+  +Relación Censo-Votación
+  +Restricción única
+}
+
+class InscritosVotacion {
+  +Relación Usuario-Votación
+  +Restricción única
+}
+
+class CandidatosNombrados {
+  +Relación Votación-Candidatura
+  +Director opcional
+  +Restricciones únicas
+}
+
+class IntegrantesCandidatura {
+  +Relación Usuario-Candidatura
+  +Restricción única
+}
+
+class IntegrantesMesa {
+  +Relación Usuario-Mesa
+  +Restricción única
+}
+
+class RolUsuario {
+  +Rol del usuario
+  +Restricción usuario-rol
+}
+
+' ============================
+' RELACIONES
+' ============================
+
+Votacion "1" <-- "0..*" MesaElectoral : mesas
+Votacion "1" <-- "0..1" CalendarioVotacion : calendario
+
+Usuario "1" <-- "0..1" Certificado : certificado usuario
+MesaElectoral "1" <-- "0..1" Certificado : certificado mesa
+
+Votacion "1" <-- "0..*" Noticias : noticias
+Censo   "1" <-- "0..*" Noticias : noticias
+
+Votacion "1" <-- "0..*" Voto : votos
+Usuario  "1" <-- "0..*" Voto : emisor opcional
+
+Usuario  "1" <-- "0..*" Incidencia : reporta
+Censo    "1" <-- "0..*" Incidencia : censo opcional
+Votacion "1" <-- "0..*" Incidencia : votación opcional
+
+Usuario "1" <-- "0..*" CensoUsuario
+Censo   "1" <-- "0..*" CensoUsuario
+
+Votacion "1" <-- "0..*" CensoVotacion
+Censo    "1" <-- "0..*" CensoVotacion
+
+Usuario  "1" <-- "0..*" InscritosVotacion
+Votacion "1" <-- "0..*" InscritosVotacion
+
+Votacion     "1" <-- "0..*" CandidatosNombrados
+Candidatura  "1" <-- "0..*" CandidatosNombrados
+Usuario      "1" <-- "0..*" CandidatosNombrados : director
+
+Usuario     "1" <-- "0..*" IntegrantesCandidatura
+Candidatura "1" <-- "0..*" IntegrantesCandidatura
+
+Usuario       "1" <-- "0..*" IntegrantesMesa
+MesaElectoral "1" <-- "0..*" IntegrantesMesa
+
+Usuario "1" <-- "0..*" RolUsuario : roles
+
+CandidatosNombrados "1" <-- "0..*" ComunicacionDirector : campaña
+Usuario             "1" <-- "0..*" ComunicacionDirector : director
+
+legend right
+Leyenda:
+- Entidades con atributos resumidos por bloques
+- 0..1: relación opcional
+- 0..*: múltiples registros
+- Tablas intermedias: relaciones N:N explícitas
+endlegend
+
+@enduml
