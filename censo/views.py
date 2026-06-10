@@ -176,6 +176,7 @@ def Inicio_mesa(request):
     calendario = getattr(votacion, "calendario", None)
     fase = None
     rangos = None
+    cal_info = None
     if calendario:
         rangos = calendario_rangos(calendario)
         fase = fase_actual(calendario)
@@ -231,7 +232,7 @@ def Inicio_director(request):
     votacion = cand_nombrados.votacion
     candidatura = cand_nombrados.candidatura
 
-    calendario = getattr(votacion, "calendario", None)
+    calendario = CalendarioVotacion.objects.filter(votacion=votacion).first()
     fase= fase_actual(calendario) if calendario else None
 
     if request.method == "POST":
@@ -272,7 +273,7 @@ def Inicio_director(request):
             messages.error(request, f"Error enviando comunicación: {e}")
         return redirect('Inicio_director')
 
-    return render(request, 'roles/director/Inicio_director.html', {'envios_hoy': envios_hoy,'votacion': votacion,'candidatura': candidatura,})
+    return render(request, 'roles/director/Inicio_director.html', {'envios_hoy': envios_hoy,'votacion': votacion,'candidatura': candidatura, "calendario": calendario, "fase_actual": fase,})
 
 @role_required('junta')
 def Inicio_junta(request):
@@ -549,9 +550,7 @@ def junta_vot_crear_candidatura(request):
 
             try:
                 obj = CandidatosNombrados.objects.create(votacion=votacion, candidatura=candidatura)
-                print("CREADO CandidatosNombrados:", obj.id)
             except Exception as e:
-                print("ERROR creando CandidatosNombrados:", repr(e))
                 raise
 
             # Vincular candidatura a votación (CandidatosNombrados)
@@ -1188,7 +1187,6 @@ def recuentoVotacion(votacion, clave_privada_mesa_pem: str):
     votos_invalidos=0
     firmas_invalidas=0
     candidatura_invalida=0
-
     for v in votos:
         if not v.hashVoto or " :: " not in v.hashVoto:
             votos_invalidos += 1
@@ -1197,7 +1195,7 @@ def recuentoVotacion(votacion, clave_privada_mesa_pem: str):
 
         try:
             contenido_plano = descifrar_con_clave_privada_base64(parte_cifrada, clave_privada_mesa_pem)
-        except Exception:
+        except Exception as e:
             votos_invalidos +=1
             continue   
     
@@ -1220,7 +1218,6 @@ def recuentoVotacion(votacion, clave_privada_mesa_pem: str):
         if not verificar_firma_usuario(contenido_plano, parte_firma, cert_user.clave_publica):
             firmas_invalidas +=1
             continue
-        
         conteo[int(id_cand)]+=1
     
     total_votos_emitidos= sum(conteo.values())
@@ -1253,6 +1250,7 @@ def recuentoVotacion(votacion, clave_privada_mesa_pem: str):
         ResultadoCandidatura.objects.create(resultado=resultado, candidatura_id=cand_id, numero_votos=n)
     
     votacion.RecuentoAutorizado = True
+    votacion.Resultado = ganadora_obj.NombreCandidatura if ganadora_obj else "Sin Resolver"
     votacion.save(update_fields=["RecuentoAutorizado"])
 
     resumen = {
@@ -1762,7 +1760,7 @@ def descifrar_con_clave_privada_base64(contenido_cifrado_base64, clave_privada):
     clave_priv = serialization.load_pem_private_key(clave_privada.encode(),password=None,backend=default_backend())
     contenido_cifrado = base64.b64decode(contenido_cifrado_base64.encode("utf-8"))
 
-    contenido_descifrado = clave_priv.decrypt(contenido_cifrado,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256),algorithm=hashes.SHA256,label=None))
+    contenido_descifrado = clave_priv.decrypt(contenido_cifrado,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
 
     return contenido_descifrado.decode("utf-8")
 
@@ -1770,7 +1768,7 @@ def verificar_firma_usuario(contenido_plano: str, firma_base64: str, clave_publi
     try:
         clave_pub = serialization.load_pem_public_key(clave_publica_pem.encode("utf-8"), backend=default_backend())
         firma=base64.b64decode(firma_base64.encode("utf-8"))
-        clave_pub.verify(firma, contenido_plano.encode("utf-8"), padding.PKC1v15(), hashes.SHA256())
+        clave_pub.verify(firma, contenido_plano.encode("utf-8"), padding.PKCS1v15(), hashes.SHA256())
         return True
     except Exception:
         return False
@@ -1780,7 +1778,7 @@ def parsear_contenido_voto(contenido: str):
     # Devuelve id_votacion:int, id_candidatura:int o None None
     try:
         a,b = contenido.split("|",1)
-        return int(a.strip(), b.strip())
+        return int(a.strip()), int(b.strip())
     except Exception:
         return None, None
 

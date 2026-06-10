@@ -104,8 +104,8 @@
         <hr>
         <p class="mb-1">
           <strong>Candidatura ganadora:</strong>
-          {% if resumen.candidatura_ganadora %}
-            {{ resumen.candidatura_ganadora.NombreCandidatura }}
+          {% if resumen.ganadora %}
+            {{ resumen.ganadora}}
           {% else %}
             (sin determinar)
           {% endif %}
@@ -137,7 +137,7 @@
             <tbody>
               {% for r in detalle %}
                 <tr>
-                  <td>{{ r.candidatura.NombreCandidatura }}</td>
+                  <td>{{ r.candidatura__NombreCandidatura }}</td>
                   <td>{{ r.numero_votos }}</td>
                 </tr>
               {% empty %}
