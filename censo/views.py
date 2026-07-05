@@ -1253,6 +1253,9 @@ def recuentoVotacion(votacion, clave_privada_mesa_pem: str):
     votacion.Resultado = ganadora_obj.NombreCandidatura if ganadora_obj else "Sin Resolver"
     votacion.save(update_fields=["RecuentoAutorizado"])
 
+    #Antes de retornar la pagina desasociamos los votos de los datos de usuario para que no se pueda reconstruir la identidad del votante
+    votos.update(idUsuario=None)
+
     resumen = {
         "ya_existia": False,"total_censados": total_censados,"total_votos_emitidos": total_votos_emitidos,"porcentaje_participacion": float(round(porcentaje, 2)),"ganadora_id": ganadora_id,"ganadora_votos": votos_ganadora,
         "debug": {
